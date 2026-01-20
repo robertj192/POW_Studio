@@ -1,0 +1,37 @@
+╔════════════════════════════════════════════════════════════╗
+║                                                            ║
+║                   PROJECTS FOLDER                          ║
+║                                                            ║
+╚════════════════════════════════════════════════════════════╝
+
+This folder is for storing your saved POW! Studio projects.
+
+SAVING YOUR WORK:
+1. In POW! Studio, go to Tools → Save Project
+2. Choose this folder as your save location
+3. Your project saves as a ZIP file
+
+PROJECT FILES CONTAIN:
+• All your pages and layouts
+• Panel configurations
+• Text and captions
+• Panel notes and numbers
+• Layer organization
+
+RECOMMENDED NAMING:
+• MyComic_Chapter1_v1.zip
+• MyComic_Chapter1_v2.zip (version control!)
+• MyComic_Chapter2_v1.zip
+
+LOADING PROJECTS:
+1. In POW! Studio, go to Tools → Load Project
+2. Select your saved ZIP file
+3. Continue editing where you left off!
+
+TIPS:
+• Save frequently!
+• Keep multiple versions (v1, v2, v3...)
+• Back up important projects
+• Save before making major changes
+
+Your work is valuable - protect it! 💾

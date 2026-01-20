@@ -1,0 +1,29 @@
+╔════════════════════════════════════════════════════════════╗
+║                                                            ║
+║                    IMAGES FOLDER                           ║
+║                                                            ║
+╚════════════════════════════════════════════════════════════╝
+
+This folder is for storing your comic artwork and images.
+
+RECOMMENDED ORGANIZATION:
+
+images/
+  ├── page_01/
+  ├── page_02/
+  ├── page_03/
+  ├── characters/
+  └── backgrounds/
+
+TIPS:
+• Keep images organized by page or type
+• Use PNG format for best quality
+• Transparent backgrounds work great!
+• Name files clearly (character_hero.png, bg_city.png)
+
+IMAGE SPECS:
+• Resolution: 300 DPI for print, 150 DPI for web
+• Match your panel sizes (use dimension overlay in POW! Studio)
+• Larger is better - you can always scale down!
+
+Happy creating! 🎨

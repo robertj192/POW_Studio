@@ -1,0 +1,4452 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>POW! Studio - v1.079</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.3.0/fabric.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Permanent+Marker&family=Comic+Neue:wght@400;700&family=Bungee&family=Titan+One&family=Creepster&family=Black+Ops+One&family=Press+Start+2P&family=Indie+Flower&family=Shadows+Into+Light&family=Covered+By+Your+Grace&family=Roboto:wght@400;700&family=Lato:wght@400;700&family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #2a2a2a;
+            color: #e0e0e0;
+            overflow: hidden;
+        }
+
+        .app-container {
+            display: flex;
+            height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 280px;
+            background: #1e1e1e;
+            border-right: 1px solid #3a3a3a;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+        }
+
+        .sidebar-section {
+            padding: 20px;
+            border-bottom: 1px solid #3a3a3a;
+        }
+
+        .sidebar-section h3 {
+            margin-bottom: 15px;
+            color: #4a9eff;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            cursor: pointer;
+            user-select: none;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px 0;
+            transition: all 0.2s;
+        }
+
+        .sidebar-section h3:hover {
+            color: #6ab0ff;
+        }
+
+        .sidebar-section h3::after {
+            content: '▼';
+            font-size: 10px;
+            transition: transform 0.2s;
+        }
+
+        .sidebar-section h3.collapsed::after {
+            content: '▶';
+        }
+
+        .sidebar-section-content {
+            max-height: 2000px;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out, opacity 0.3s ease-out;
+            opacity: 1;
+        }
+
+        .sidebar-section-content.collapsed {
+            max-height: 0;
+            opacity: 0;
+        }
+
+        .properties-panel h3 {
+            margin-bottom: 15px;
+            color: #4a9eff;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            cursor: pointer;
+            user-select: none;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px 0;
+            transition: all 0.2s;
+        }
+
+        .properties-panel h3:hover {
+            color: #6ab0ff;
+        }
+
+        .properties-panel h3::after {
+            content: '▼';
+            font-size: 10px;
+            transition: transform 0.2s;
+        }
+
+        .properties-panel h3.collapsed::after {
+            content: '▶';
+        }
+
+        .property-section-content {
+            max-height: 2000px;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out, opacity 0.3s ease-out;
+            opacity: 1;
+        }
+
+        .property-section-content.collapsed {
+            max-height: 0;
+            opacity: 0;
+        }
+
+        .tool-button {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 8px;
+            background: #2a2a2a;
+            border: 1px solid #3a3a3a;
+            color: #e0e0e0;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: all 0.2s;
+            font-size: 14px;
+        }
+
+        .tool-button:hover {
+            background: #3a3a3a;
+            border-color: #4a9eff;
+        }
+
+        .tool-button.active {
+            background: #4a9eff;
+            border-color: #4a9eff;
+            color: #fff;
+        }
+
+        .badge-button {
+            background: #2a2a2a;
+            border: 1px solid #4a4a4a;
+            color: #e0e0e0;
+            padding: 8px 4px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 11px;
+            text-align: center;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .badge-button:hover {
+            background: #3a3a3a;
+            border-color: #5a5a5a;
+            transform: scale(1.05);
+        }
+
+        .badge-button:active {
+            background: #4a4a4a;
+            transform: scale(0.95);
+        }
+
+        /* Legal Disclaimer Modal */
+        .disclaimer-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            z-index: 10000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .disclaimer-content {
+            background: #1a1a1a;
+            border: 2px solid #4a9eff;
+            border-radius: 8px;
+            padding: 30px;
+            max-width: 600px;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+        }
+
+        .disclaimer-content h2 {
+            color: #4a9eff;
+            margin-top: 0;
+            margin-bottom: 20px;
+            font-size: 24px;
+            text-align: center;
+        }
+
+        .disclaimer-content p {
+            color: #e0e0e0;
+            line-height: 1.6;
+            margin-bottom: 15px;
+            font-size: 14px;
+        }
+
+        .disclaimer-content .version-info {
+            color: #888;
+            font-size: 12px;
+            text-align: center;
+            margin-top: 20px;
+            margin-bottom: 20px;
+        }
+
+        .disclaimer-buttons {
+            display: flex;
+            gap: 15px;
+            margin-top: 25px;
+        }
+
+        .disclaimer-buttons button {
+            flex: 1;
+            padding: 12px 24px;
+            font-size: 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            border: none;
+            transition: all 0.2s;
+        }
+
+        .disclaimer-agree {
+            background: #4a9eff;
+            color: white;
+        }
+
+        .disclaimer-agree:hover {
+            background: #3a8eef;
+            transform: translateY(-1px);
+        }
+
+        .disclaimer-decline {
+            background: #2a2a2a;
+            color: #e0e0e0;
+            border: 1px solid #3a3a3a;
+        }
+
+        .disclaimer-decline:hover {
+            background: #3a3a3a;
+        }
+
+        /* Settings Tabs */
+        .settings-tab {
+            background: transparent;
+            border: none;
+            border-bottom: 2px solid transparent;
+            color: #888;
+            padding: 10px 15px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 14px;
+        }
+
+        .settings-tab:hover {
+            color: #e0e0e0;
+        }
+
+        .settings-tab.active {
+            color: #4a9eff;
+            border-bottom-color: #4a9eff;
+        }
+
+        .settings-content {
+            animation: fadeIn 0.2s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .badge-replacement-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 10px;
+            background: #2a2a2a;
+            border: 1px solid #3a3a3a;
+            border-radius: 4px;
+        }
+
+        .badge-replacement-item img {
+            width: 60px;
+            height: 30px;
+            object-fit: contain;
+            background: white;
+            border-radius: 3px;
+        }
+
+        .keybinding-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 12px;
+            background: #2a2a2a;
+            border: 1px solid #3a3a3a;
+            border-radius: 4px;
+        }
+
+        .keybinding-key {
+            background: #3a3a3a;
+            padding: 4px 12px;
+            border-radius: 3px;
+            font-family: monospace;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .keybinding-key:hover {
+            background: #4a4a4a;
+            border: 1px solid #4a9eff;
+        }
+
+        .image-upload {
+            width: 100%;
+            padding: 12px;
+            background: #2a2a2a;
+            border: 2px dashed #3a3a3a;
+            color: #e0e0e0;
+            cursor: pointer;
+            border-radius: 4px;
+            text-align: center;
+            transition: all 0.2s;
+        }
+
+        .image-upload:hover {
+            border-color: #4a9eff;
+            background: #3a3a3a;
+        }
+
+        .image-gallery {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .image-thumb {
+            width: 100%;
+            height: 100px;
+            object-fit: cover;
+            border-radius: 4px;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: all 0.2s;
+        }
+
+        .image-thumb:hover {
+            border-color: #4a9eff;
+            transform: scale(1.05);
+        }
+
+        .image-delete-btn {
+            position: absolute;
+            top: 4px;
+            right: 4px;
+            background: rgba(255, 59, 48, 0.9);
+            color: white;
+            border: none;
+            border-radius: 3px;
+            width: 22px;
+            height: 22px;
+            font-size: 14px;
+            line-height: 1;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0;
+            transition: background 0.2s;
+            z-index: 10;
+        }
+
+        .image-delete-btn:hover {
+            background: rgba(255, 59, 48, 1);
+            transform: scale(1.1);
+        }
+
+        /* Dimension overlay */
+        .dimension-overlay {
+            position: fixed;
+            background: rgba(74, 144, 226, 0.95);
+            color: white;
+            padding: 8px 12px;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 14px;
+            font-weight: bold;
+            pointer-events: none;
+            z-index: 10000;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+            white-space: nowrap;
+        }
+
+        /* Dropdown menu */
+        .dropdown-menu {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background: #2a2a2a;
+            border: 1px solid #4a4a4a;
+            border-radius: 4px;
+            min-width: 220px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+            z-index: 10000;
+            margin-top: 5px;
+            display: none;
+        }
+
+        .dropdown-menu.active {
+            display: block;
+        }
+
+        .dropdown-section {
+            padding: 8px 0;
+            border-bottom: 1px solid #3a3a3a;
+        }
+
+        .dropdown-section:last-child {
+            border-bottom: none;
+        }
+
+        .dropdown-section-title {
+            padding: 6px 16px;
+            font-size: 11px;
+            font-weight: bold;
+            color: #888;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .dropdown-item {
+            padding: 8px 16px;
+            cursor: pointer;
+            transition: background 0.2s;
+            color: #e0e0e0;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .dropdown-item:hover {
+            background: #3a3a3a;
+        }
+
+        .dropdown-item:active {
+            background: #4a4a4a;
+        }
+
+        /* Main Canvas Area */
+        .canvas-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: #2a2a2a;
+        }
+
+        .toolbar {
+            background: #1e1e1e;
+            padding: 15px 20px;
+            border-bottom: 1px solid #3a3a3a;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-shrink: 0;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        .toolbar-button {
+            padding: 8px 16px;
+            background: #2a2a2a;
+            border: 1px solid #3a3a3a;
+            color: #e0e0e0;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: all 0.2s;
+            font-size: 13px;
+        }
+
+        .toolbar-button:hover {
+            background: #3a3a3a;
+            border-color: #4a9eff;
+        }
+
+        .canvas-wrapper {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            overflow: auto;
+            padding: 40px;
+            padding-top: 20px;
+        }
+
+        #comic-canvas {
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+        }
+
+        /* Properties Panel */
+        .properties-panel {
+            width: 340px;
+            background: #1e1e1e;
+            border-left: 1px solid #3a3a3a;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .properties-panel h3 {
+            margin-bottom: 15px;
+            color: #4a9eff;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .property-group {
+            margin-bottom: 20px;
+        }
+
+        .property-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 12px;
+            color: #a0a0a0;
+        }
+
+        .property-group input,
+        .property-group select {
+            width: 100%;
+            padding: 8px;
+            background: #2a2a2a;
+            border: 1px solid #3a3a3a;
+            color: #e0e0e0;
+            border-radius: 4px;
+            font-size: 13px;
+        }
+
+        .property-group input[type="number"] {
+            width: 80px;
+        }
+
+        .property-group input[type="color"] {
+            width: 60px;
+            height: 35px;
+            padding: 2px;
+            cursor: pointer;
+        }
+
+        .color-input-group {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        /* Status Bar */
+        .status-bar {
+            background: #1e1e1e;
+            padding: 8px 20px;
+            border-top: 1px solid #3a3a3a;
+            font-size: 12px;
+            color: #a0a0a0;
+        }
+
+        /* Hidden file input */
+        #imageInput {
+            display: none;
+        }
+
+        /* Scrollbar styling */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #1e1e1e;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #3a3a3a;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #4a4a4a;
+        }
+
+        /* Layers panel styles */
+        .layer-item {
+            padding: 8px 10px;
+            margin-bottom: 4px;
+            background: #1e1e1e;
+            border: 1px solid #3a3a3a;
+            border-radius: 3px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.2s;
+            user-select: none;
+        }
+
+        .layer-item:hover {
+            background: #3a3a3a;
+            border-color: #4a9eff;
+        }
+
+        .layer-item.selected {
+            background: #4a9eff;
+            border-color: #4a9eff;
+            color: #fff;
+        }
+
+        .layer-item-name {
+            flex: 1;
+            font-size: 12px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .layer-item-controls {
+            display: flex;
+            gap: 4px;
+        }
+
+        .layer-item-btn {
+            padding: 2px 6px;
+            background: #2a2a2a;
+            border: 1px solid #3a3a3a;
+            color: #e0e0e0;
+            cursor: pointer;
+            border-radius: 2px;
+            font-size: 10px;
+            transition: all 0.2s;
+        }
+
+        .layer-item-btn:hover {
+            background: #3a3a3a;
+            border-color: #4a9eff;
+        }
+
+        .layer-item.selected .layer-item-btn {
+            background: #6ab0ff;
+            border-color: #6ab0ff;
+            color: #fff;
+        }
+
+        .layer-item.locked {
+            opacity: 0.6;
+            border-left: 3px solid #ff6b6b;
+        }
+
+        .layer-item.locked .layer-item-name {
+            font-style: italic;
+        }
+
+        /* Page thumbnails */
+        .page-thumbnail {
+            border: 2px solid #3a3a3a;
+            border-radius: 4px;
+            padding: 8px;
+            background: #2a2a2a;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .page-thumbnail:hover {
+            border-color: #4a9eff;
+            background: #3a3a3a;
+        }
+
+        .page-thumbnail.active {
+            border-color: #4a9eff;
+            background: #4a9eff;
+        }
+
+        .page-thumbnail-preview {
+            width: 60px;
+            height: 92px;
+            background: #fff;
+            border: 1px solid #3a3a3a;
+            border-radius: 2px;
+            overflow: hidden;
+        }
+
+        .page-thumbnail-preview canvas {
+            width: 100%;
+            height: 100%;
+        }
+
+        .page-thumbnail-info {
+            flex: 1;
+            font-size: 12px;
+        }
+
+        .page-thumbnail-number {
+            font-weight: bold;
+            color: #4a9eff;
+            margin-bottom: 4px;
+        }
+
+        /* Panel number badge */
+        .panel-number-badge {
+            position: absolute;
+            background: #4a9eff;
+            color: white;
+            font-weight: bold;
+            font-size: 14px;
+            padding: 4px 8px;
+            border-radius: 3px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+            pointer-events: none;
+            z-index: 1000;
+        }
+    </style>
+</head>
+<body>
+    <!-- Legal Disclaimer Modal -->
+    <div id="disclaimerModal" class="disclaimer-modal" style="display: flex;">
+        <div class="disclaimer-content">
+            <h2>⚖️ POW! Studio - Legal Notice</h2>
+            
+            <p><strong>Welcome to POW! Studio v1.079</strong></p>
+            
+            <p>By using this software, you acknowledge and agree to the following terms:</p>
+            
+            <p><strong>Content Responsibility:</strong> You, the user, are solely responsible for any and all content created using this software. The author and developer of POW! Studio bears no responsibility, liability, or obligation for any comics, artwork, text, images, or other content created, published, distributed, or shared using this tool.</p>
+            
+            <p><strong>Copyright & Ownership:</strong> This software, POW! Studio, is copyrighted material. All rights reserved. Unauthorized reproduction, distribution, or modification of this software code is prohibited without express written permission from the copyright holder.</p>
+            
+            <p><strong>User-Created Content:</strong> All content you create using this software remains your intellectual property. However, you are responsible for ensuring your content does not infringe on third-party copyrights, trademarks, or other intellectual property rights.</p>
+            
+            <p><strong>Use at Your Own Risk:</strong> This software is provided "as is" without warranty of any kind, either expressed or implied. The author shall not be held liable for any damages arising from the use or inability to use this software.</p>
+            
+            <div class="version-info">
+                POW! Studio v1.079<br>
+                © 2024-2025 All Rights Reserved
+            </div>
+            
+            <div class="disclaimer-buttons">
+                <button class="disclaimer-decline" onclick="declineTerms()">Decline</button>
+                <button class="disclaimer-agree" onclick="acceptTerms()">I Agree - Let's Create!</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Settings Modal -->
+    <div id="settingsModal" class="disclaimer-modal" style="display: none;">
+        <div class="disclaimer-content" style="max-width: 700px;">
+            <h2>⚙️ Settings</h2>
+            
+            <!-- Tab Navigation -->
+            <div style="display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 1px solid #3a3a3a;">
+                <button id="themeTab" class="settings-tab active" onclick="switchSettingsTab('theme')">🎨 Theme</button>
+                <button id="badgesTab" class="settings-tab" onclick="switchSettingsTab('badges')">💥 Custom Badges</button>
+                <button id="keybindingsTab" class="settings-tab" onclick="switchSettingsTab('keybindings')">⌨️ Key Bindings</button>
+            </div>
+            
+            <!-- Theme Settings -->
+            <div id="themeSettings" class="settings-content">
+                <h3 style="color: #4a9eff; margin-top: 0;">Theme Settings</h3>
+                <div style="display: flex; flex-direction: column; gap: 15px;">
+                    <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+                        <input type="radio" name="theme" value="dark" checked>
+                        <span>🌙 Dark Mode (Default)</span>
+                    </label>
+                    <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+                        <input type="radio" name="theme" value="light">
+                        <span>☀️ Light Mode</span>
+                    </label>
+                    <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+                        <input type="radio" name="theme" value="contrast">
+                        <span>⚡ High Contrast</span>
+                    </label>
+                </div>
+            </div>
+            
+            <!-- Custom Badges Settings -->
+            <div id="badgesSettings" class="settings-content" style="display: none;">
+                <h3 style="color: #4a9eff; margin-top: 0;">Custom Badges</h3>
+                <p style="color: #888; font-size: 13px; margin-bottom: 15px;">Replace built-in badges with your own custom graphics</p>
+                <div id="badgeReplacementList" style="display: flex; flex-direction: column; gap: 10px;">
+                    <!-- Will be populated by JavaScript -->
+                </div>
+            </div>
+            
+            <!-- Key Bindings Settings -->
+            <div id="keybindingsSettings" class="settings-content" style="display: none;">
+                <h3 style="color: #4a9eff; margin-top: 0;">Keyboard Shortcuts</h3>
+                <p style="color: #888; font-size: 13px; margin-bottom: 15px;">Click on a shortcut to rebind it</p>
+                <div id="keybindingsList" style="display: flex; flex-direction: column; gap: 8px;">
+                    <!-- Will be populated by JavaScript -->
+                </div>
+            </div>
+            
+            <div class="disclaimer-buttons" style="margin-top: 30px;">
+                <button class="disclaimer-decline" onclick="closeSettings()">Cancel</button>
+                <button class="disclaimer-agree" onclick="saveSettings()">Save Settings</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="app-container">
+        <!-- Left Sidebar -->
+        <div class="sidebar">
+            <div class="sidebar-section">
+                <h3 onclick="toggleSection(this)">Tools</h3>
+                <div class="sidebar-section-content">
+                    <button class="tool-button" id="selectTool">Select / Move</button>
+                    <button class="tool-button" id="panelTool">Create Panel (Rectangle)</button>
+                    <button class="tool-button" id="polygonTool">Create Panel (Freeform)</button>
+                    <button class="tool-button" id="captionTool">Caption Box</button>
+                    <button class="tool-button" id="textTool">Add Text</button>
+                    <button class="tool-button" id="clipTool">Clip Image to Panel</button>
+                    <button class="tool-button" id="deleteTool">Delete Selected</button>
+                </div>
+            </div>
+
+            <div class="sidebar-section">
+                <h3 onclick="toggleSection(this)" class="collapsed">Quick Actions</h3>
+                <div class="sidebar-section-content collapsed">
+                    <button class="tool-button" onclick="clearCanvas()">Clear Page</button>
+                    <button class="tool-button" onclick="saveProjectZIP()">💾 Export Project ZIP</button>
+                    <button class="tool-button" onclick="loadProjectZIP()">📁 Load Project ZIP</button>
+                    <button class="tool-button" onclick="saveProject()">Save to Browser</button>
+                    <button class="tool-button" onclick="loadProject()">Load from Browser</button>
+                    <button class="tool-button" onclick="showDebugInfo()" style="background: #3a2a2a;">🐛 Debug Info</button>
+                </div>
+            </div>
+
+            <div class="sidebar-section">
+                <h3 onclick="toggleSection(this)" class="collapsed">Grid & Guides</h3>
+                <div class="sidebar-section-content collapsed">
+                    <div style="display: flex; flex-direction: column; gap: 10px;">
+                        <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                            <input type="checkbox" id="snapToGrid" onchange="toggleSnapToGrid()" checked>
+                            <span>Snap to Grid</span>
+                        </label>
+                        <label style="display: flex; flex-direction: column; gap: 4px;">
+                            <span>Grid Size (px)</span>
+                            <select id="gridSize" onchange="updateGridSize()" style="background: #2a2a2a; color: #e0e0e0; border: 1px solid #3a3a3a; padding: 4px; border-radius: 4px;">
+                                <option value="10">10px - Fine</option>
+                                <option value="20" selected>20px - Normal</option>
+                                <option value="50">50px - Coarse</option>
+                                <option value="100">100px - Very Coarse</option>
+                            </select>
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                            <input type="checkbox" id="showDimensions" onchange="toggleShowDimensions()" checked>
+                            <span>Show Dimensions</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="sidebar-section">
+                <h3 onclick="toggleSection(this)" class="collapsed">Panel Templates</h3>
+                <div class="sidebar-section-content collapsed">
+                    <div style="display: flex; flex-direction: column; gap: 8px;">
+                        <button class="tool-button" onclick="applyTemplate('grid-6')">6-Panel Grid (2×3)</button>
+                        <button class="tool-button" onclick="applyTemplate('grid-4')">4-Panel Grid (2×2)</button>
+                        <button class="tool-button" onclick="applyTemplate('grid-3-vertical')">3-Panel Vertical</button>
+                        <button class="tool-button" onclick="applyTemplate('grid-3-horizontal')">3-Panel Horizontal</button>
+                        <button class="tool-button" onclick="applyTemplate('widescreen')">Widescreen Layout</button>
+                        <button class="tool-button" onclick="applyTemplate('splash-top')">Splash Top + 3</button>
+                        <button class="tool-button" onclick="applyTemplate('splash-bottom')">3 + Splash Bottom</button>
+                        <button class="tool-button" onclick="applyTemplate('manga-vertical')">Manga Vertical</button>
+                        <button class="tool-button" onclick="applyTemplate('z-layout')">Z-Layout (Dynamic)</button>
+                        <button class="tool-button" onclick="saveCustomTemplate()">💾 Save Current as Template</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="sidebar-section">
+                <h3 onclick="toggleSection(this)" class="collapsed">Images</h3>
+                <div class="sidebar-section-content collapsed">
+                    <input type="file" id="imageInput" accept="image/*" multiple>
+                    <input type="file" id="zipInput" accept=".zip" style="display: none;">
+                    <div class="image-upload" onclick="document.getElementById('imageInput').click()">
+                        Click to Upload Images
+                    </div>
+                    <div class="image-gallery" id="imageGallery"></div>
+                </div>
+            </div>
+
+            <div class="sidebar-section">
+                <h3 onclick="toggleSection(this)" class="collapsed">Pages</h3>
+                <div class="sidebar-section-content collapsed">
+                    <div id="pageThumbnails" style="display: flex; flex-direction: column; gap: 8px; max-height: 300px; overflow-y: auto;"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Canvas Area -->
+        <div class="canvas-area">
+            <div class="toolbar">
+                <!-- Always visible: Page counter (far left) -->
+                <span style="color: #e0e0e0; font-size: 13px; margin-right: 15px;">Page <span id="currentPageNumber">1</span> of <span id="totalPages">1</span></span>
+                
+                <!-- Always visible: Undo/Redo -->
+                <button class="toolbar-button" onclick="undo()" id="undoBtn" title="Undo (Ctrl+Z)">↶ Undo</button>
+                <button class="toolbar-button" onclick="redo()" id="redoBtn" title="Redo (Ctrl+Y)">↷ Redo</button>
+                
+                <!-- Always visible: Page navigation -->
+                <button class="toolbar-button" onclick="previousPage()" style="margin-left: 15px;">◀ Prev</button>
+                <button class="toolbar-button" onclick="nextPage()">Next ▶</button>
+                <button class="toolbar-button" onclick="addNewPage()">+ Add Page</button>
+                <button class="toolbar-button" onclick="deletePage()">🗑️ Delete Page</button>
+                
+                <!-- Zoom controls -->
+                <button class="toolbar-button" onclick="zoomOut()" title="Zoom Out">−</button>
+                <span style="color: #e0e0e0; font-size: 13px; min-width: 50px; text-align: center;" id="zoomDisplay">100%</span>
+                <button class="toolbar-button" onclick="zoomIn()" title="Zoom In">+</button>
+                <button class="toolbar-button" onclick="resetZoom()" title="Reset Zoom (1:1)">1:1</button>
+                
+                <!-- Dropdown menu button (far right) -->
+                <div style="margin-left: auto; position: relative;">
+                    <button class="toolbar-button" onclick="toggleDropdownMenu()" id="dropdownToggle" title="Tools & Export">⋮ Tools</button>
+                    
+                    <div id="dropdownMenu" class="dropdown-menu">
+                        <div class="dropdown-section">
+                            <div class="dropdown-section-title">Layer Controls</div>
+                            <div class="dropdown-item" onclick="bringForward(); closeDropdown();">▲ Bring Forward</div>
+                            <div class="dropdown-item" onclick="sendBackward(); closeDropdown();">▼ Send Backward</div>
+                            <div class="dropdown-item" onclick="bringToFront(); closeDropdown();">⬆ Bring to Front</div>
+                            <div class="dropdown-item" onclick="sendToBack(); closeDropdown();">⬇ Send to Back</div>
+                        </div>
+                        
+                        <div class="dropdown-section">
+                            <div class="dropdown-section-title">Panel Tools</div>
+                            <div class="dropdown-item" onclick="groupPanelAndImage(); closeDropdown();">🔗 Group Panel & Image</div>
+                            <div class="dropdown-item" onclick="ungroupObjects(); closeDropdown();">⛓️‍💥 Ungroup</div>
+                            <div class="dropdown-item" onclick="autoNumberPanels(); closeDropdown();">🔢 Auto-Number Panels</div>
+                        </div>
+                        
+                        <div class="dropdown-section">
+                            <div class="dropdown-section-title">Export</div>
+                            <div class="dropdown-item" onclick="exportAllPanelNotes(); closeDropdown();">📝 Export Panel Notes</div>
+                            <div class="dropdown-item" onclick="exportToPNG(); closeDropdown();">🖼️ Export PNG (Current Page)</div>
+                            <div class="dropdown-item" onclick="exportCurrentPageToPDF(); closeDropdown();">📄 Export Page PDF</div>
+                            <div class="dropdown-item" onclick="exportAllPagesToPDF(); closeDropdown();">📚 Export Comic PDF (All Pages)</div>
+                        </div>
+                        
+                        <div class="dropdown-section">
+                            <div class="dropdown-section-title">Application</div>
+                            <div class="dropdown-item" onclick="openSettings(); closeDropdown();">⚙️ Settings</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="canvas-wrapper">
+                <canvas id="comic-canvas"></canvas>
+            </div>
+
+            <div class="status-bar">
+                <span id="statusText">Ready | Click 'Create Panel' to start drawing panels</span>
+            </div>
+        </div>
+
+        <!-- Right Properties Panel -->
+        <div class="properties-panel">
+            <h3 onclick="togglePropertySection(this)" class="collapsed">Panel Properties</h3>
+            <div class="property-section-content collapsed" id="panelProperties">
+                <div class="property-group">
+                    <label>Panel Dimensions</label>
+                    <div style="background: #2a2a2a; border: 1px solid #4a9eff; border-radius: 4px; padding: 8px; text-align: center; font-family: monospace; font-size: 14px; font-weight: bold; color: #4a9eff;">
+                        <span id="panelDimensions">-</span>
+                    </div>
+                </div>
+                <div class="property-group">
+                    <label>Panel Number (Reading Order)</label>
+                    <input type="number" id="panelNumber" value="1" min="1" max="999" onchange="updatePanelNumber()" placeholder="1, 2, 3...">
+                </div>
+                <div class="property-group">
+                    <label>Panel Notes / Image Prompt</label>
+                    <textarea id="panelNotes" 
+                              placeholder="Enter description, image prompt, or story notes for this panel..." 
+                              onchange="updatePanelNotes()"
+                              style="width: 100%; min-height: 100px; padding: 8px; background: #2a2a2a; border: 1px solid #3a3a3a; color: #e0e0e0; border-radius: 4px; font-family: monospace; font-size: 12px; resize: vertical;"></textarea>
+                    <div style="display: flex; gap: 5px; margin-top: 5px;">
+                        <button class="toolbar-button" onclick="copyPanelNotes()" style="flex: 1; padding: 4px 8px; font-size: 11px;">📋 Copy</button>
+                        <button class="toolbar-button" onclick="clearPanelNotes()" style="flex: 1; padding: 4px 8px; font-size: 11px;">🗑️ Clear</button>
+                    </div>
+                </div>
+                <div class="property-group">
+                    <label>Border Width</label>
+                    <input type="number" id="borderWidth" value="3" min="0" max="20" onchange="updatePanelBorder()">
+                </div>
+                <div class="property-group">
+                    <label>Border Color</label>
+                    <div class="color-input-group">
+                        <input type="color" id="borderColor" value="#000000" onchange="updatePanelBorder()">
+                        <span id="borderColorValue">#000000</span>
+                    </div>
+                </div>
+                <div class="property-group">
+                    <label>Fill Color</label>
+                    <div class="color-input-group">
+                        <input type="color" id="fillColor" value="#ffffff" onchange="updatePanelFill()">
+                        <span id="fillColorValue">#ffffff</span>
+                    </div>
+                </div>
+            </div>
+
+            <h3 onclick="togglePropertySection(this)" class="collapsed" style="margin-top: 30px;">Text Properties</h3>
+            <div class="property-section-content collapsed" id="textProperties">
+                <div class="property-group">
+                    <label>Font Size</label>
+                    <input type="number" id="fontSize" value="24" min="8" max="120" onchange="updateTextProperties()">
+                </div>
+                <div class="property-group">
+                    <label>Font Family</label>
+                    <select id="fontFamily" onchange="updateTextProperties()">
+                        <optgroup label="System Fonts">
+                            <option value="Arial">Arial</option>
+                            <option value="Comic Sans MS">Comic Sans MS</option>
+                            <option value="Impact">Impact</option>
+                            <option value="Courier New">Courier New</option>
+                            <option value="Georgia">Georgia</option>
+                        </optgroup>
+                        <optgroup label="Comic Fonts">
+                            <option value="Bangers">Bangers - Bold Comic</option>
+                            <option value="Permanent Marker">Permanent Marker - Hand-drawn</option>
+                            <option value="Comic Neue">Comic Neue - Modern Comic</option>
+                            <option value="Bungee">Bungee - Bold Display</option>
+                            <option value="Titan One">Titan One - Heavy Impact</option>
+                        </optgroup>
+                        <optgroup label="Action & Drama">
+                            <option value="Creepster">Creepster - Horror</option>
+                            <option value="Black Ops One">Black Ops One - Military</option>
+                            <option value="Press Start 2P">Press Start 2P - Retro</option>
+                        </optgroup>
+                        <optgroup label="Handwriting">
+                            <option value="Indie Flower">Indie Flower - Casual</option>
+                            <option value="Shadows Into Light">Shadows Into Light - Natural</option>
+                            <option value="Covered By Your Grace">Covered By Your Grace - Sketchy</option>
+                        </optgroup>
+                        <optgroup label="Professional">
+                            <option value="Roboto">Roboto - Clean Modern</option>
+                            <option value="Lato">Lato - Professional Sans</option>
+                            <option value="Montserrat">Montserrat - Elegant</option>
+                        </optgroup>
+                    </select>
+                </div>
+                <div class="property-group">
+                    <label>Text Color</label>
+                    <div class="color-input-group">
+                        <input type="color" id="textColor" value="#000000" onchange="updateTextProperties()">
+                        <span id="textColorValue">#000000</span>
+                    </div>
+                </div>
+                <div class="property-group">
+                    <label>Text Width (Wrapping)</label>
+                    <input type="number" id="textWidth" value="200" min="50" max="800" step="10" onchange="updateTextProperties()">
+                    <small style="color: #888; font-size: 11px; display: block; margin-top: 4px;">Width of text box - text wraps automatically</small>
+                </div>
+            </div>
+
+            <h3 onclick="togglePropertySection(this)" class="collapsed" style="margin-top: 30px;">Caption Box</h3>
+            <div class="property-section-content collapsed" id="captionProperties">
+                <button class="tool-button" onclick="ungroupForEditing()" style="width: 100%; margin-bottom: 15px; background: #4a8fe7;">✏️ Edit Text</button>
+                <div class="property-group">
+                    <label>Background</label>
+                    <div class="color-input-group">
+                        <input type="color" id="captionFill" value="#ffffff" onchange="updateCaptionProperties()">
+                        <span id="captionFillValue">#ffffff</span>
+                    </div>
+                </div>
+                <div class="property-group">
+                    <label>Border Color</label>
+                    <div class="color-input-group">
+                        <input type="color" id="captionStroke" value="#000000" onchange="updateCaptionProperties()">
+                        <span id="captionStrokeValue">#000000</span>
+                    </div>
+                </div>
+                <div class="property-group">
+                    <label>Border Width</label>
+                    <input type="number" id="captionStrokeWidth" value="2" min="0" max="10" onchange="updateCaptionProperties()">
+                </div>
+                <div class="property-group">
+                    <label>Corner Radius</label>
+                    <input type="number" id="captionRadius" value="5" min="0" max="50" onchange="updateCaptionProperties()">
+                </div>
+            </div>
+
+            <h3 onclick="togglePropertySection(this)" class="collapsed" style="margin-top: 30px;">Page Settings</h3>
+            <div class="property-section-content collapsed">
+                <div class="property-group">
+                    <label>Page Background</label>
+                    <div class="color-input-group">
+                        <input type="color" id="pageBackground" value="#ffffff" onchange="updatePageBackground()">
+                        <span id="pageBackgroundValue">#ffffff</span>
+                    </div>
+                </div>
+            </div>
+
+            <h3 onclick="togglePropertySection(this)" class="collapsed" style="margin-top: 30px;">Badges & Effects</h3>
+            <div class="property-section-content collapsed">
+                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 10px;">
+                    <button class="badge-button" onclick="addBadge('pow')" title="Add POW! badge">💥 POW!</button>
+                    <button class="badge-button" onclick="addBadge('bam')" title="Add BAM! badge">💢 BAM!</button>
+                    <button class="badge-button" onclick="addBadge('zap')" title="Add ZAP! badge">⚡ ZAP!</button>
+                    <button class="badge-button" onclick="addBadge('boom')" title="Add BOOM! badge">🔥 BOOM!</button>
+                    <button class="badge-button" onclick="addBadge('splat')" title="Add SPLAT! badge">💧 SPLAT!</button>
+                    <button class="badge-button" onclick="addBadge('kapow')" title="Add KAPOW! badge">💫 KAPOW!</button>
+                    <button class="badge-button" onclick="addBadge('whoosh')" title="Add WHOOSH! badge">💨 WHOOSH!</button>
+                    <button class="badge-button" onclick="addBadge('crash')" title="Add CRASH! badge">💥 CRASH!</button>
+                    <button class="badge-button" onclick="addBadge('thud')" title="Add THUD! badge">💢 THUD!</button>
+                </div>
+                <button class="tool-button" onclick="document.getElementById('badgeInput').click()" style="width: 100%;">+ Upload Custom Badge</button>
+                <input type="file" id="badgeInput" accept="image/*" multiple style="display: none;">
+            </div>
+
+            <h3 onclick="togglePropertySection(this)" class="collapsed" style="margin-top: 30px;">Layers</h3>
+            <div class="property-section-content collapsed">
+                <div id="layersPanel" style="background: #2a2a2a; border: 1px solid #3a3a3a; border-radius: 4px; padding: 10px; margin-bottom: 20px;">
+                    <div id="layersList"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Legal Disclaimer Functions
+        function acceptTerms() {
+            localStorage.setItem('powstudioDisclaimerAccepted', 'true');
+            document.getElementById('disclaimerModal').style.display = 'none';
+        }
+
+        function declineTerms() {
+            alert('You must accept the terms to use POW! Studio. The page will now close.');
+            window.close();
+            // If window.close() doesn't work (some browsers block it), redirect to blank page
+            setTimeout(() => {
+                window.location.href = 'about:blank';
+            }, 100);
+        }
+
+        // Check if user has already accepted
+        window.addEventListener('DOMContentLoaded', () => {
+            const accepted = localStorage.getItem('powstudioDisclaimerAccepted');
+            if (accepted === 'true') {
+                document.getElementById('disclaimerModal').style.display = 'none';
+            }
+            loadSettings();
+        });
+
+        // Settings Management
+        let powstudioSettings = {
+            theme: 'dark',
+            customBadges: {},
+            keyBindings: {
+                undo: 'ctrl+z',
+                redo: 'ctrl+y',
+                zoomIn: 'ctrl+=',
+                zoomOut: 'ctrl+-',
+                zoomReset: 'ctrl+0',
+                pan: 'space'
+            }
+        };
+
+        function loadSettings() {
+            const saved = localStorage.getItem('powstudioSettings');
+            if (saved) {
+                powstudioSettings = JSON.parse(saved);
+                applyTheme(powstudioSettings.theme);
+            }
+        }
+
+        function checkKeyBinding(e, bindingName) {
+            const binding = powstudioSettings.keyBindings[bindingName];
+            if (!binding) return false;
+            
+            const parts = binding.toLowerCase().split('+');
+            const hasCtrl = parts.includes('ctrl');
+            const hasShift = parts.includes('shift');
+            const hasAlt = parts.includes('alt');
+            const key = parts[parts.length - 1]; // Last part is the key
+            
+            // Special case for 'space'
+            if (key === 'space') {
+                return e.code === 'Space' && 
+                       e.ctrlKey === hasCtrl && 
+                       e.shiftKey === hasShift && 
+                       e.altKey === hasAlt;
+            }
+            
+            return e.key.toLowerCase() === key && 
+                   (e.ctrlKey || e.metaKey) === hasCtrl && 
+                   e.shiftKey === hasShift && 
+                   e.altKey === hasAlt;
+        }
+
+        function openSettings() {
+            document.getElementById('settingsModal').style.display = 'flex';
+            populateBadgeReplacements();
+            populateKeyBindings();
+            
+            // Set current theme radio
+            document.querySelector(`input[name="theme"][value="${powstudioSettings.theme}"]`).checked = true;
+        }
+
+        function closeSettings() {
+            document.getElementById('settingsModal').style.display = 'none';
+        }
+
+        function switchSettingsTab(tab) {
+            // Hide all content
+            document.querySelectorAll('.settings-content').forEach(el => el.style.display = 'none');
+            document.querySelectorAll('.settings-tab').forEach(el => el.classList.remove('active'));
+            
+            // Show selected
+            document.getElementById(tab + 'Settings').style.display = 'block';
+            document.getElementById(tab + 'Tab').classList.add('active');
+        }
+
+        function saveSettings() {
+            // Save theme
+            const selectedTheme = document.querySelector('input[name="theme"]:checked').value;
+            powstudioSettings.theme = selectedTheme;
+            
+            // Save to localStorage
+            localStorage.setItem('powstudioSettings', JSON.stringify(powstudioSettings));
+            
+            // Apply theme
+            applyTheme(selectedTheme);
+            
+            closeSettings();
+            updateStatus('✅ Settings saved! Key bindings and custom badges are now active.');
+        }
+
+        function applyTheme(theme) {
+            if (theme === 'light') {
+                // Light theme
+                document.body.style.background = '#f0f0f0';
+                document.body.style.color = '#1a1a1a';
+                
+                // Sidebars
+                document.querySelectorAll('.sidebar, .properties-panel').forEach(el => {
+                    el.style.background = '#ffffff';
+                    el.style.color = '#1a1a1a';
+                    el.style.borderColor = '#d0d0d0';
+                });
+                
+                // Buttons
+                document.querySelectorAll('.tool-button, .badge-button').forEach(el => {
+                    el.style.background = '#e8e8e8';
+                    el.style.color = '#1a1a1a';
+                    el.style.borderColor = '#c0c0c0';
+                });
+                
+                // Inputs
+                document.querySelectorAll('input, select, textarea').forEach(el => {
+                    el.style.background = '#ffffff';
+                    el.style.color = '#1a1a1a';
+                    el.style.borderColor = '#c0c0c0';
+                });
+                
+                // Sections
+                document.querySelectorAll('.sidebar-section-content, .property-section-content').forEach(el => {
+                    el.style.background = '#f8f8f8';
+                });
+                
+            } else if (theme === 'contrast') {
+                // High contrast theme
+                document.body.style.background = '#000000';
+                document.body.style.color = '#ffffff';
+                
+                document.querySelectorAll('.sidebar, .properties-panel').forEach(el => {
+                    el.style.background = '#000000';
+                    el.style.color = '#ffffff';
+                    el.style.borderColor = '#ffffff';
+                });
+                
+                document.querySelectorAll('.tool-button, .badge-button').forEach(el => {
+                    el.style.background = '#000000';
+                    el.style.color = '#ffffff';
+                    el.style.borderColor = '#ffffff';
+                });
+                
+                document.querySelectorAll('input, select, textarea').forEach(el => {
+                    el.style.background = '#000000';
+                    el.style.color = '#ffffff';
+                    el.style.borderColor = '#ffffff';
+                });
+                
+                document.querySelectorAll('.sidebar-section-content, .property-section-content').forEach(el => {
+                    el.style.background = '#000000';
+                });
+                
+            } else {
+                // Dark (default) - reset to original styles
+                document.body.style.background = '#1a1a1a';
+                document.body.style.color = '#e0e0e0';
+                
+                document.querySelectorAll('.sidebar, .properties-panel').forEach(el => {
+                    el.style.background = '#2a2a2a';
+                    el.style.color = '#e0e0e0';
+                    el.style.borderColor = '#3a3a3a';
+                });
+                
+                document.querySelectorAll('.tool-button, .badge-button').forEach(el => {
+                    el.style.background = '#2a2a2a';
+                    el.style.color = '#e0e0e0';
+                    el.style.borderColor = '#3a3a3a';
+                });
+                
+                document.querySelectorAll('input, select, textarea').forEach(el => {
+                    el.style.background = '#2a2a2a';
+                    el.style.color = '#e0e0e0';
+                    el.style.borderColor = '#3a3a3a';
+                });
+                
+                document.querySelectorAll('.sidebar-section-content, .property-section-content').forEach(el => {
+                    el.style.background = '';
+                });
+            }
+        }
+
+        function populateBadgeReplacements() {
+            const container = document.getElementById('badgeReplacementList');
+            container.innerHTML = '';
+            
+            const badges = ['pow', 'bam', 'zap', 'boom', 'splat', 'kapow', 'whoosh', 'crash', 'thud'];
+            
+            badges.forEach(badge => {
+                const item = document.createElement('div');
+                item.className = 'badge-replacement-item';
+                
+                const isCustom = powstudioSettings.customBadges[badge];
+                
+                item.innerHTML = `
+                    <div style="flex: 0 0 80px; font-weight: bold; text-transform: uppercase;">${badge}</div>
+                    <div style="flex: 1;">
+                        <button class="tool-button" style="margin: 0; padding: 6px 12px; font-size: 12px;" 
+                                onclick="uploadCustomBadge('${badge}')">
+                            ${isCustom ? '✏️ Change' : '📤 Upload Custom'}
+                        </button>
+                        ${isCustom ? `<button class="tool-button" style="margin: 0 0 0 8px; padding: 6px 12px; font-size: 12px; background: #3a3a3a;" 
+                                onclick="resetBadge('${badge}')">🔄 Reset</button>` : ''}
+                    </div>
+                    <div style="color: #888; font-size: 11px;">${isCustom ? 'Custom' : 'Default'}</div>
+                `;
+                
+                container.appendChild(item);
+            });
+        }
+
+        function uploadCustomBadge(badgeType) {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = 'image/*';
+            input.onchange = (e) => {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = (event) => {
+                        powstudioSettings.customBadges[badgeType] = event.target.result;
+                        populateBadgeReplacements();
+                    };
+                    reader.readAsDataURL(file);
+                }
+            };
+            input.click();
+        }
+
+        function resetBadge(badgeType) {
+            delete powstudioSettings.customBadges[badgeType];
+            populateBadgeReplacements();
+        }
+
+        function populateKeyBindings() {
+            const container = document.getElementById('keybindingsList');
+            container.innerHTML = '';
+            
+            const bindings = [
+                { name: 'Undo', key: 'undo' },
+                { name: 'Redo', key: 'redo' },
+                { name: 'Zoom In', key: 'zoomIn' },
+                { name: 'Zoom Out', key: 'zoomOut' },
+                { name: 'Reset Zoom', key: 'zoomReset' },
+                { name: 'Pan Canvas', key: 'pan' }
+            ];
+            
+            bindings.forEach(binding => {
+                const item = document.createElement('div');
+                item.className = 'keybinding-item';
+                item.innerHTML = `
+                    <span>${binding.name}</span>
+                    <span class="keybinding-key" onclick="rebindKey('${binding.key}')" title="Click to rebind">
+                        ${powstudioSettings.keyBindings[binding.key].toUpperCase()}
+                    </span>
+                `;
+                container.appendChild(item);
+            });
+        }
+
+        function rebindKey(bindingKey) {
+            const keyEl = event.target;
+            keyEl.textContent = 'Press key...';
+            keyEl.style.background = '#4a9eff';
+            
+            const handler = (e) => {
+                e.preventDefault();
+                
+                // Ignore standalone modifier keys
+                if (e.key === 'Control' || e.key === 'Shift' || e.key === 'Alt' || e.key === 'Meta') {
+                    return; // Wait for actual key
+                }
+                
+                const keys = [];
+                if (e.ctrlKey || e.metaKey) keys.push('ctrl');
+                if (e.shiftKey) keys.push('shift');
+                if (e.altKey) keys.push('alt');
+                
+                // Add the actual key
+                keys.push(e.key.toLowerCase());
+                
+                const combo = keys.join('+');
+                powstudioSettings.keyBindings[bindingKey] = combo;
+                
+                keyEl.textContent = combo.toUpperCase();
+                keyEl.style.background = '#3a3a3a';
+                
+                document.removeEventListener('keydown', handler);
+            };
+            
+            document.addEventListener('keydown', handler);
+        }
+
+        // Initialize Fabric.js canvas
+        const canvas = new fabric.Canvas('comic-canvas', {
+            width: 800,  // Standard comic page width (scaled for screen)
+            height: 1230, // Standard comic page height (6.625" x 10.25" at ~123 DPI)
+            backgroundColor: '#ffffff',
+            subTargetCheck: true  // Allow editing text inside groups
+        });
+
+        // Badge SVG templates
+        const badgeTemplates = {
+            'pow': `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 100"><path d="M20,50 L40,20 L60,45 L90,10 L110,40 L140,15 L160,45 L180,50 L160,55 L140,85 L110,60 L90,90 L60,55 L40,80 Z" fill="#FFD700" stroke="#000" stroke-width="4"/><text x="100" y="60" font-family="Arial Black" font-size="40" font-weight="bold" text-anchor="middle" fill="#000">POW!</text></svg>`,
+            'bam': `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 100"><ellipse cx="100" cy="50" rx="90" ry="40" fill="#FF4500" stroke="#000" stroke-width="4"/><text x="100" y="65" font-family="Arial Black" font-size="45" font-weight="bold" text-anchor="middle" fill="#FFF" stroke="#000" stroke-width="2">BAM!</text></svg>`,
+            'zap': `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 150 150"><path d="M75,10 L100,60 L120,60 L75,140 L70,80 L40,80 Z" fill="#FFFF00" stroke="#000" stroke-width="4"/><text x="75" y="75" font-family="Arial Black" font-size="30" font-weight="bold" text-anchor="middle" fill="#000">ZAP!</text></svg>`,
+            'boom': `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 100"><circle cx="100" cy="50" r="45" fill="#FF6347" stroke="#000" stroke-width="4"/><text x="100" y="65" font-family="Arial Black" font-size="35" font-weight="bold" text-anchor="middle" fill="#FFF" stroke="#000" stroke-width="2">BOOM!</text></svg>`,
+            'splat': `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 100"><path d="M100,20 Q120,30 110,50 Q130,55 115,70 Q120,90 100,80 Q80,90 85,70 Q70,55 90,50 Q80,30 100,20" fill="#32CD32" stroke="#000" stroke-width="3"/><text x="100" y="60" font-family="Arial Black" font-size="28" font-weight="bold" text-anchor="middle" fill="#000">SPLAT!</text></svg>`,
+            'kapow': `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 100"><polygon points="100,15 120,45 150,45 127,65 137,95 100,75 63,95 73,65 50,45 80,45" fill="#FF69B4" stroke="#000" stroke-width="4"/><text x="100" y="60" font-family="Arial Black" font-size="26" font-weight="bold" text-anchor="middle" fill="#000">KAPOW!</text></svg>`,
+            'whoosh': `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 250 80"><path d="M10,40 Q60,20 100,40 T190,40 L240,40 L230,50 L190,50 Q100,50 60,50 T10,50 Z" fill="#87CEEB" stroke="#000" stroke-width="3"/><text x="125" y="50" font-family="Arial Black" font-size="28" font-weight="bold" text-anchor="middle" fill="#000">WHOOSH!</text></svg>`,
+            'crash': `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 100"><rect x="20" y="20" width="160" height="60" fill="#DC143C" stroke="#000" stroke-width="4" transform="rotate(5 100 50)"/><text x="100" y="65" font-family="Arial Black" font-size="35" font-weight="bold" text-anchor="middle" fill="#FFF" stroke="#000" stroke-width="2">CRASH!</text></svg>`,
+            'thud': `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 100"><ellipse cx="100" cy="50" rx="85" ry="45" fill="#8B4513" stroke="#000" stroke-width="4"/><text x="100" y="65" font-family="Arial Black" font-size="40" font-weight="bold" text-anchor="middle" fill="#FFF" stroke="#000" stroke-width="2">THUD!</text></svg>`
+        };
+
+        // Add badge to canvas
+        function addBadge(badgeType) {
+            // Check if user has custom badge for this type
+            let imageSource;
+            if (powstudioSettings.customBadges[badgeType]) {
+                imageSource = powstudioSettings.customBadges[badgeType];
+            } else {
+                // Use built-in SVG template
+                const svgString = badgeTemplates[badgeType];
+                if (!svgString) return;
+                const svgBlob = new Blob([svgString], { type: 'image/svg+xml' });
+                imageSource = URL.createObjectURL(svgBlob);
+            }
+            
+            fabric.Image.fromURL(imageSource, (img) => {
+                img.set({
+                    left: canvas.width / 2,
+                    top: canvas.height / 2,
+                    originX: 'center',
+                    originY: 'center',
+                    scaleX: 0.5,
+                    scaleY: 0.5,
+                    isBadge: true,
+                    badgeType: badgeType
+                });
+                
+                canvas.add(img);
+                canvas.setActiveObject(img);
+                canvas.renderAll();
+                
+                // Clean up blob URL if using built-in
+                if (!powstudioSettings.customBadges[badgeType]) {
+                    URL.revokeObjectURL(imageSource);
+                }
+                
+                const customTag = powstudioSettings.customBadges[badgeType] ? ' (Custom)' : '';
+                updateStatus(`${badgeType.toUpperCase()}!${customTag} badge added`);
+            });
+        }
+
+        let currentTool = 'select';
+        let isDrawingPanel = false;
+        let panelStartPoint = null;
+        let tempPanel = null;
+        let uploadedImages = [];
+        
+        // Polygon tool variables
+        let polygonPoints = [];
+        let polygonLines = [];
+        let isDrawingPolygon = false;
+        
+        // Speech bubble variables
+        let isDrawingSpeechBubble = false;
+        let speechBubbleStart = null;
+        let tempSpeechBubble = null;
+
+        // Multi-page variables
+        let pages = [];
+        let currentPageIndex = 0;
+        
+        // Custom templates storage
+        let customTemplates = [];
+
+        // Grid and dimension settings
+        let snapToGrid = true;
+        let gridSize = 20;
+        let showDimensions = true;
+        let dimensionOverlay = null;
+
+        // Undo/Redo management
+        let undoStack = [];
+        let redoStack = [];
+        let isUndoRedoAction = false;
+        const MAX_UNDO_STEPS = 50;
+
+        // Zoom management
+        let zoomLevel = 1;
+        const MIN_ZOOM = 0.1;
+        const MAX_ZOOM = 5;
+        const ZOOM_STEP = 0.1;
+
+        // Pan/drag management
+        let isPanning = false;
+        let lastPosX = 0;
+        let lastPosY = 0;
+
+        // Initialize with first page
+        function initializePages() {
+            pages = [{
+                canvasData: null,
+                backgroundColor: '#ffffff'
+            }];
+            currentPageIndex = 0;
+            updatePageDisplay();
+        }
+
+        // Tool selection
+        document.getElementById('selectTool').addEventListener('click', () => {
+            setTool('select');
+            updateStatus('Select mode: Click and drag objects to move them');
+        });
+
+        document.getElementById('panelTool').addEventListener('click', () => {
+            setTool('panel');
+            updateStatus('Panel mode: Click and drag to create a rectangular panel');
+        });
+
+        document.getElementById('polygonTool').addEventListener('click', () => {
+            setTool('polygon');
+            updateStatus('Freeform mode: Click to add points. Double-click or press Enter to finish panel');
+        });
+
+        document.getElementById('captionTool').addEventListener('click', () => {
+            setTool('caption');
+            updateStatus('Caption mode: Click and drag to create a caption box');
+        });
+
+        document.getElementById('textTool').addEventListener('click', () => {
+            setTool('text');
+            updateStatus('Text mode: Click anywhere to add text');
+        });
+
+        document.getElementById('deleteTool').addEventListener('click', () => {
+            deleteSelected();
+        });
+
+        document.getElementById('clipTool').addEventListener('click', () => {
+            clipImageToPanel();
+        });
+
+        function setTool(tool) {
+            // Clear polygon drawing state when switching tools
+            if (currentTool === 'polygon' && tool !== 'polygon') {
+                clearPolygonDrawing();
+            }
+            
+            currentTool = tool;
+            document.querySelectorAll('.tool-button').forEach(btn => btn.classList.remove('active'));
+            
+            if (tool === 'select') {
+                canvas.isDrawingMode = false;
+                canvas.selection = true;
+                document.getElementById('selectTool').classList.add('active');
+            } else if (tool === 'panel') {
+                canvas.selection = false;
+                document.getElementById('panelTool').classList.add('active');
+            } else if (tool === 'polygon') {
+                canvas.selection = false;
+                isDrawingPolygon = true;
+                document.getElementById('polygonTool').classList.add('active');
+            } else if (tool === 'caption') {
+                canvas.selection = false;
+                document.getElementById('captionTool').classList.add('active');
+            } else if (tool === 'text') {
+                canvas.selection = false;
+                document.getElementById('textTool').classList.add('active');
+            }
+        }
+
+        // Panel creation with mouse
+        canvas.on('mouse:down', (options) => {
+            if (currentTool === 'panel' && !isDrawingPanel) {
+                isDrawingPanel = true;
+                const pointer = canvas.getPointer(options.e);
+                panelStartPoint = pointer;
+
+                tempPanel = new fabric.Rect({
+                    left: pointer.x,
+                    top: pointer.y,
+                    width: 0,
+                    height: 0,
+                    fill: '#ffffff',
+                    stroke: '#000000',
+                    strokeWidth: 3,
+                    selectable: false
+                });
+                canvas.add(tempPanel);
+            } else if (currentTool === 'polygon') {
+                const pointer = canvas.getPointer(options.e);
+                addPolygonPoint(pointer);
+            } else if (currentTool === 'caption' && !isDrawingPanel) {
+                isDrawingPanel = true;
+                const pointer = canvas.getPointer(options.e);
+                panelStartPoint = pointer;
+
+                tempPanel = new fabric.Rect({
+                    left: pointer.x,
+                    top: pointer.y,
+                    width: 0,
+                    height: 0,
+                    fill: '#ffffff',
+                    stroke: '#000000',
+                    strokeWidth: 2,
+                    selectable: false,
+                    rx: 5,
+                    ry: 5
+                });
+                canvas.add(tempPanel);
+            } else if (currentTool === 'text') {
+                const pointer = canvas.getPointer(options.e);
+                addText(pointer.x, pointer.y);
+            }
+        });
+
+        canvas.on('mouse:move', (options) => {
+            if (isDrawingPanel && tempPanel) {
+                const pointer = canvas.getPointer(options.e);
+                
+                if (pointer.x < panelStartPoint.x) {
+                    tempPanel.set({ left: pointer.x });
+                }
+                if (pointer.y < panelStartPoint.y) {
+                    tempPanel.set({ top: pointer.y });
+                }
+                
+                const width = Math.abs(pointer.x - panelStartPoint.x);
+                const height = Math.abs(pointer.y - panelStartPoint.y);
+                
+                tempPanel.set({
+                    width: width,
+                    height: height
+                });
+                
+                // Show dimensions while creating panel (not for caption boxes)
+                if (showDimensions && currentTool !== 'caption') {
+                    showDimensionOverlay(pointer.x, pointer.y, width, height);
+                }
+                
+                canvas.renderAll();
+            }
+        });
+
+        canvas.on('mouse:up', () => {
+            if (isDrawingPanel && tempPanel) {
+                isDrawingPanel = false;
+                tempPanel.set({ selectable: true });
+                tempPanel.setCoords();
+                
+                // Check if this was a caption box
+                if (currentTool === 'caption') {
+                    tempPanel.isCaptionBox = true;
+                    
+                    // Create text for the caption
+                    const bounds = tempPanel.getBoundingRect();
+                    const textWidth = Math.max(100, bounds.width - 20); // Box width minus padding
+                    const text = new fabric.Textbox('Double-click to edit', {
+                        left: bounds.left + 10,
+                        top: bounds.top + bounds.height / 2 - 10,
+                        width: textWidth,
+                        fontSize: 16,
+                        fontFamily: 'Arial',
+                        fill: '#000000',
+                        textAlign: 'center',
+                        originX: 'left',
+                        originY: 'center',
+                        lockScalingFlip: true,
+                        editable: true,
+                        selectable: true
+                    });
+                    
+                    // Group caption box and text together
+                    const group = new fabric.Group([tempPanel, text], {
+                        left: tempPanel.left,
+                        top: tempPanel.top,
+                        isCaptionBox: true,
+                        subTargetCheck: true,
+                        interactive: true
+                    });
+                    
+                    // Remove the temporary panel (it's now in the group)
+                    canvas.remove(tempPanel);
+                    
+                    // Add the group
+                    canvas.add(group);
+                    canvas.setActiveObject(group);
+                }
+                
+                tempPanel = null;
+                panelStartPoint = null;
+                hideDimensionOverlay(); // Hide dimensions when done creating
+                setTool('select');
+                updateStatus(currentTool === 'caption' ? 'Caption box created! Double-click text to edit' : 'Panel created! Switch to Select mode to adjust it');
+            }
+        });
+
+        // Add text
+        function addText(x, y) {
+            const text = new fabric.Textbox('Double-click to edit', {
+                left: x,
+                top: y,
+                width: 200,
+                fontSize: 24,
+                fontFamily: 'Arial',
+                fill: '#000000',
+                lockScalingFlip: true
+            });
+            canvas.add(text);
+            canvas.bringToFront(text);
+            canvas.setActiveObject(text);
+            setTool('select');
+            updateStatus('Text added! Double-click to edit. Drag corners to resize width (text wraps automatically).');
+        }
+
+        // Create speech bubble with tail
+        function createSpeechBubbleGroup(x, y, width, height, tailX, tailY, bubbleType = 'speech', tailPosition = 'bottom') {
+            width = Math.max(width, 80);
+            height = Math.max(height, 50);
+            
+            const bubbleCenterX = width / 2;
+            const bubbleCenterY = height / 2;
+            
+            let bubble;
+            let tail = null;
+            
+            // Create different bubble shapes based on type
+            if (bubbleType === 'thought') {
+                // Thought bubble - scalloped edge effect with multiple circles
+                bubble = new fabric.Ellipse({
+                    left: 0,
+                    top: 0,
+                    rx: width / 2,
+                    ry: height / 2,
+                    fill: '#ffffff',
+                    stroke: '#000000',
+                    strokeWidth: 2,
+                    strokeDashArray: null
+                });
+            } else if (bubbleType === 'shout') {
+                // Shout bubble - spiky star-like shape
+                const spikyPoints = [];
+                const numSpikes = 12;
+                const outerRadius = Math.max(width, height) / 2;
+                const innerRadius = outerRadius * 0.8;
+                
+                for (let i = 0; i < numSpikes * 2; i++) {
+                    const angle = (i * Math.PI) / numSpikes;
+                    const radius = i % 2 === 0 ? outerRadius : innerRadius;
+                    spikyPoints.push({
+                        x: bubbleCenterX + radius * Math.cos(angle),
+                        y: bubbleCenterY + radius * Math.sin(angle)
+                    });
+                }
+                
+                bubble = new fabric.Polygon(spikyPoints, {
+                    fill: '#ffffff',
+                    stroke: '#000000',
+                    strokeWidth: 2
+                });
+            } else if (bubbleType === 'whisper') {
+                // Whisper bubble - dashed outline
+                bubble = new fabric.Ellipse({
+                    left: 0,
+                    top: 0,
+                    rx: width / 2,
+                    ry: height / 2,
+                    fill: '#ffffff',
+                    stroke: '#000000',
+                    strokeWidth: 2,
+                    strokeDashArray: [5, 5]
+                });
+            } else {
+                // Default speech bubble - ellipse
+                bubble = new fabric.Ellipse({
+                    left: 0,
+                    top: 0,
+                    rx: width / 2,
+                    ry: height / 2,
+                    fill: '#ffffff',
+                    stroke: '#000000',
+                    strokeWidth: 2
+                });
+            }
+            
+            // Create tail based on position (if not 'none')
+            if (tailPosition !== 'none') {
+                let tailPoints = [];
+                
+                if (tailPosition === 'bottom') {
+                    tailPoints = [
+                        { x: bubbleCenterX - 10, y: height - 5 },
+                        { x: bubbleCenterX + 10, y: height - 5 },
+                        { x: bubbleCenterX, y: height + 25 }
+                    ];
+                } else if (tailPosition === 'bottom-left') {
+                    tailPoints = [
+                        { x: width * 0.3 - 10, y: height - 5 },
+                        { x: width * 0.3 + 10, y: height - 5 },
+                        { x: width * 0.2, y: height + 25 }
+                    ];
+                } else if (tailPosition === 'bottom-right') {
+                    tailPoints = [
+                        { x: width * 0.7 - 10, y: height - 5 },
+                        { x: width * 0.7 + 10, y: height - 5 },
+                        { x: width * 0.8, y: height + 25 }
+                    ];
+                } else if (tailPosition === 'left') {
+                    tailPoints = [
+                        { x: 5, y: bubbleCenterY - 10 },
+                        { x: 5, y: bubbleCenterY + 10 },
+                        { x: -20, y: bubbleCenterY }
+                    ];
+                } else if (tailPosition === 'right') {
+                    tailPoints = [
+                        { x: width - 5, y: bubbleCenterY - 10 },
+                        { x: width - 5, y: bubbleCenterY + 10 },
+                        { x: width + 20, y: bubbleCenterY }
+                    ];
+                } else if (tailPosition === 'top') {
+                    tailPoints = [
+                        { x: bubbleCenterX - 10, y: 5 },
+                        { x: bubbleCenterX + 10, y: 5 },
+                        { x: bubbleCenterX, y: -20 }
+                    ];
+                }
+                
+                // For thought bubbles, create small circles instead of triangle tail
+                if (bubbleType === 'thought') {
+                    const circle1 = new fabric.Circle({
+                        radius: 8,
+                        left: tailPoints[2].x - 8,
+                        top: tailPoints[2].y - 15,
+                        fill: '#ffffff',
+                        stroke: '#000000',
+                        strokeWidth: 2
+                    });
+                    
+                    const circle2 = new fabric.Circle({
+                        radius: 5,
+                        left: tailPoints[2].x - 5,
+                        top: tailPoints[2].y - 5,
+                        fill: '#ffffff',
+                        stroke: '#000000',
+                        strokeWidth: 2
+                    });
+                    
+                    const group = new fabric.Group([bubble, circle1, circle2], {
+                        left: x,
+                        top: y,
+                        subTargetCheck: false
+                    });
+                    
+                    group.bubbleType = bubbleType;
+                    group.tailPosition = tailPosition;
+                    return group;
+                } else {
+                    tail = new fabric.Polygon(tailPoints, {
+                        fill: '#ffffff',
+                        stroke: '#000000',
+                        strokeWidth: 2
+                    });
+                }
+            }
+            
+            // Group bubble and tail together
+            const elements = tail ? [bubble, tail] : [bubble];
+            const group = new fabric.Group(elements, {
+                left: x,
+                top: y,
+                subTargetCheck: false
+            });
+            
+            // Store metadata
+            group.bubbleType = bubbleType;
+            group.tailPosition = tailPosition;
+            
+            return group;
+        }
+
+        // Create caption box (rectangular with rounded corners)
+        function createCaptionBox(x, y, width, height) {
+            const caption = new fabric.Rect({
+                left: x,
+                top: y,
+                width: width,
+                height: height,
+                fill: '#ffffff',
+                stroke: '#000000',
+                strokeWidth: 2,
+                rx: 5,
+                ry: 5
+            });
+            return caption;
+        }
+
+        // Polygon panel creation functions
+        function addPolygonPoint(pointer) {
+            // Check if clicking near first point to close polygon (within 10 pixels)
+            if (polygonPoints.length > 2) {
+                const firstPoint = polygonPoints[0];
+                const distance = Math.sqrt(
+                    Math.pow(pointer.x - firstPoint.x, 2) + 
+                    Math.pow(pointer.y - firstPoint.y, 2)
+                );
+                
+                if (distance < 15) {
+                    finishPolygon();
+                    return;
+                }
+            }
+
+            polygonPoints.push(pointer);
+
+            // Draw point indicator
+            const circle = new fabric.Circle({
+                radius: 4,
+                fill: '#4a9eff',
+                left: pointer.x,
+                top: pointer.y,
+                originX: 'center',
+                originY: 'center',
+                selectable: false,
+                evented: false
+            });
+            canvas.add(circle);
+            polygonLines.push(circle);
+
+            // Draw line to previous point
+            if (polygonPoints.length > 1) {
+                const prevPoint = polygonPoints[polygonPoints.length - 2];
+                const line = new fabric.Line(
+                    [prevPoint.x, prevPoint.y, pointer.x, pointer.y],
+                    {
+                        stroke: '#4a9eff',
+                        strokeWidth: 2,
+                        selectable: false,
+                        evented: false
+                    }
+                );
+                canvas.add(line);
+                polygonLines.push(line);
+            }
+
+            canvas.renderAll();
+            
+            if (polygonPoints.length === 1) {
+                updateStatus(`Point 1 added. Click to add more points. Click near first point or double-click to finish`);
+            } else {
+                updateStatus(`Point ${polygonPoints.length} added. ${polygonPoints.length >= 3 ? 'Click near first point or double-click to finish' : 'Keep clicking to add points'}`);
+            }
+        }
+
+        function finishPolygon() {
+            if (polygonPoints.length < 3) {
+                updateStatus('Need at least 3 points to create a panel');
+                return;
+            }
+
+            // Create polygon from points
+            const polygon = new fabric.Polygon(polygonPoints, {
+                fill: '#ffffff',
+                stroke: '#000000',
+                strokeWidth: 3,
+                objectCaching: false
+            });
+
+            canvas.add(polygon);
+            
+            // Clear temporary drawing elements
+            clearPolygonDrawing();
+            
+            canvas.setActiveObject(polygon);
+            setTool('select');
+            updateStatus('Freeform panel created! Switch to Select mode to adjust it');
+        }
+
+        function clearPolygonDrawing() {
+            // Remove all temporary lines and points
+            polygonLines.forEach(obj => canvas.remove(obj));
+            polygonLines = [];
+            polygonPoints = [];
+            isDrawingPolygon = false;
+            canvas.renderAll();
+        }
+
+        // Handle double-click to finish polygon
+        canvas.on('mouse:dblclick', () => {
+            if (currentTool === 'polygon' && polygonPoints.length >= 3) {
+                finishPolygon();
+            }
+        });
+
+        // Image upload handling
+        document.getElementById('imageInput').addEventListener('change', (e) => {
+            const files = e.target.files;
+            for (let file of files) {
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    const imgData = event.target.result;
+                    uploadedImages.push(imgData);
+                    addImageToGalleryWithClipping(imgData);
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        // Handle custom badge upload
+        document.getElementById('badgeInput').addEventListener('change', (e) => {
+            const files = e.target.files;
+            for (let file of files) {
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    fabric.Image.fromURL(event.target.result, (img) => {
+                        img.set({
+                            left: canvas.width / 2,
+                            top: canvas.height / 2,
+                            originX: 'center',
+                            originY: 'center',
+                            scaleX: 0.3,
+                            scaleY: 0.3,
+                            isBadge: true,
+                            badgeType: 'custom'
+                        });
+                        
+                        canvas.add(img);
+                        canvas.setActiveObject(img);
+                        canvas.renderAll();
+                        updateStatus('Custom badge added');
+                    });
+                };
+                reader.readAsDataURL(file);
+            }
+            e.target.value = ''; // Reset input
+        });
+
+        function addImageToGallery(imgData) {
+            addImageToGalleryWithClipping(imgData);
+        }
+
+        function addImageToCanvas(imgData) {
+            fabric.Image.fromURL(imgData, (img) => {
+                // Scale image to fit reasonably on canvas
+                const maxWidth = 300;
+                const maxHeight = 300;
+                const scale = Math.min(maxWidth / img.width, maxHeight / img.height);
+                
+                img.scale(scale);
+                img.set({
+                    left: 100,
+                    top: 100
+                });
+                
+                canvas.add(img);
+                canvas.setActiveObject(img);
+                updateStatus('Image added! Drag to position, resize with corner handles');
+            });
+        }
+
+        // Add image to panel with clipping
+        function addImageToPanel(imgData, panel) {
+            fabric.Image.fromURL(imgData, (img) => {
+                // Create a clipping group
+                const group = new fabric.Group([panel, img], {
+                    left: panel.left,
+                    top: panel.top
+                });
+
+                // Remove the original panel
+                canvas.remove(panel);
+                
+                // Set clipping path on the image
+                img.set({
+                    clipPath: new fabric.Rect({
+                        width: panel.width,
+                        height: panel.height,
+                        top: -panel.height / 2,
+                        left: -panel.width / 2,
+                        absolutePositioned: true
+                    })
+                });
+
+                // Scale image to fit panel
+                const scaleX = panel.width / img.width;
+                const scaleY = panel.height / img.height;
+                const scale = Math.max(scaleX, scaleY); // Cover the panel
+                
+                img.scale(scale);
+                img.set({
+                    left: panel.left,
+                    top: panel.top,
+                    originX: 'left',
+                    originY: 'top'
+                });
+
+                // Create custom object that contains both panel and image
+                const panelWithImage = new fabric.Group([
+                    new fabric.Rect({
+                        width: panel.width,
+                        height: panel.height,
+                        fill: panel.fill,
+                        stroke: panel.stroke,
+                        strokeWidth: panel.strokeWidth,
+                        left: -panel.width / 2,
+                        top: -panel.height / 2
+                    }),
+                    img
+                ], {
+                    left: panel.left + panel.width / 2,
+                    top: panel.top + panel.height / 2,
+                    subTargetCheck: true,
+                    interactive: true
+                });
+
+                panelWithImage.panelData = {
+                    isPanel: true,
+                    imageData: imgData
+                };
+
+                canvas.add(panelWithImage);
+                canvas.setActiveObject(panelWithImage);
+                updateStatus('Image clipped to panel! Resize panel to adjust visible area');
+            });
+        }
+
+        // Simpler approach: Just clip the image to panel bounds
+        function clipImageToPanel() {
+            const activeObject = canvas.getActiveObject();
+            if (!activeObject) {
+                updateStatus('Please select a panel first, then click an image to clip it');
+                return;
+            }
+
+            if (activeObject.type !== 'rect' && activeObject.type !== 'polygon') {
+                updateStatus('Please select a panel (rectangle or polygon) first');
+                return;
+            }
+
+            // Store the panel for the next image click
+            window.selectedPanelForClipping = activeObject;
+            updateStatus('Panel selected! Now click an image from the gallery to clip it to this panel');
+        }
+
+        // Modified addImageToGallery to support clipping
+        function addImageToGalleryWithClipping(imgData) {
+            const gallery = document.getElementById('imageGallery');
+            
+            // Create container for image + delete button
+            const container = document.createElement('div');
+            container.style.position = 'relative';
+            container.style.display = 'inline-block';
+            
+            const img = document.createElement('img');
+            img.src = imgData;
+            img.className = 'image-thumb';
+            img.onclick = () => {
+                if (window.selectedPanelForClipping) {
+                    addImageToSelectedPanel(imgData, window.selectedPanelForClipping);
+                    window.selectedPanelForClipping = null;
+                } else {
+                    addImageToCanvas(imgData);
+                }
+            };
+            
+            // Create delete button
+            const deleteBtn = document.createElement('button');
+            deleteBtn.innerHTML = '✕';
+            deleteBtn.className = 'image-delete-btn';
+            deleteBtn.onclick = (e) => {
+                e.stopPropagation();
+                if (confirm('Delete this image from the gallery?')) {
+                    // Remove from uploadedImages array
+                    const index = uploadedImages.indexOf(imgData);
+                    if (index > -1) {
+                        uploadedImages.splice(index, 1);
+                    }
+                    // Remove from DOM
+                    container.remove();
+                    updateStatus('Image removed from gallery');
+                }
+            };
+            
+            container.appendChild(img);
+            container.appendChild(deleteBtn);
+            gallery.appendChild(container);
+        }
+
+        function addImageToSelectedPanel(imgData, panel) {
+            fabric.Image.fromURL(imgData, (img) => {
+                let clipPath;
+                let imgLeft, imgTop, imgScale;
+
+                if (panel.type === 'rect') {
+                    // Rectangle panel clipping - account for panel scaling
+                    const actualWidth = panel.width * (panel.scaleX || 1);
+                    const actualHeight = panel.height * (panel.scaleY || 1);
+                    
+                    const scaleX = actualWidth / img.width;
+                    const scaleY = actualHeight / img.height;
+                    imgScale = Math.max(scaleX, scaleY);
+
+                    img.scale(imgScale);
+                    
+                    imgLeft = panel.left;
+                    imgTop = panel.top;
+
+                    clipPath = new fabric.Rect({
+                        width: actualWidth,
+                        height: actualHeight,
+                        left: panel.left,
+                        top: panel.top,
+                        absolutePositioned: true
+                    });
+                } else if (panel.type === 'polygon') {
+                    // Polygon panel clipping
+                    const bounds = panel.getBoundingRect();
+                    const scaleX = bounds.width / img.width;
+                    const scaleY = bounds.height / img.height;
+                    imgScale = Math.max(scaleX, scaleY);
+
+                    img.scale(imgScale);
+                    
+                    imgLeft = bounds.left;
+                    imgTop = bounds.top;
+
+                    // Clone the polygon for clipping
+                    clipPath = fabric.util.object.clone(panel);
+                    clipPath.absolutePositioned = true;
+                }
+
+                img.set({
+                    left: imgLeft,
+                    top: imgTop,
+                    originX: panel.originX || 'left',
+                    originY: panel.originY || 'left',
+                    angle: panel.angle || 0,
+                    clipPath: clipPath
+                });
+
+                canvas.add(img);
+                
+                // Send image behind everything, then bring panel forward
+                canvas.sendToBack(img);
+                canvas.bringForward(panel);
+                
+                // Make sure panel has visible border and transparent fill
+                panel.set({ 
+                    fill: 'rgba(255,255,255,0)',
+                    stroke: panel.stroke || '#000000',
+                    strokeWidth: panel.strokeWidth || 3
+                });
+                
+                canvas.renderAll();
+                canvas.setActiveObject(img);
+                updateStatus('Image clipped to panel! Move/resize image to adjust. Panel border stays on top.');
+            });
+        }
+
+        // Layering controls
+        function bringForward() {
+            const activeObject = canvas.getActiveObject();
+            if (activeObject) {
+                canvas.bringForward(activeObject);
+                canvas.renderAll();
+                updateStatus('Object moved forward');
+            }
+        }
+
+        function sendBackward() {
+            const activeObject = canvas.getActiveObject();
+            if (activeObject) {
+                canvas.sendBackwards(activeObject);
+                canvas.renderAll();
+                updateStatus('Object moved backward');
+            }
+        }
+
+        function bringToFront() {
+            const activeObject = canvas.getActiveObject();
+            if (activeObject) {
+                canvas.bringToFront(activeObject);
+                canvas.renderAll();
+                updateStatus('Object brought to front');
+            }
+        }
+
+        function sendToBack() {
+            const activeObject = canvas.getActiveObject();
+            if (activeObject) {
+                canvas.sendToBack(activeObject);
+                canvas.renderAll();
+                updateStatus('Object sent to back');
+            }
+        }
+
+        // Group panel and image together
+        function groupPanelAndImage() {
+            const activeObject = canvas.getActiveObject();
+            
+            if (!activeObject) {
+                updateStatus('Please select a panel or image first');
+                return;
+            }
+
+            // Find the panel and clipped image
+            let panel = null;
+            let clippedImage = null;
+
+            // Check if selected object is a panel
+            if (activeObject.type === 'rect' || activeObject.type === 'polygon') {
+                panel = activeObject;
+                
+                // Find the image clipped to this panel
+                const allObjects = canvas.getObjects();
+                for (let obj of allObjects) {
+                    if (obj.type === 'image' && obj.clipPath) {
+                        // Check if this image is positioned near this panel
+                        const panelBounds = panel.getBoundingRect();
+                        const imageBounds = obj.getBoundingRect();
+                        
+                        // Simple proximity check
+                        if (Math.abs(panelBounds.left - imageBounds.left) < 5 && 
+                            Math.abs(panelBounds.top - imageBounds.top) < 5) {
+                            clippedImage = obj;
+                            break;
+                        }
+                    }
+                }
+            }
+            // Check if selected object is an image
+            else if (activeObject.type === 'image' && activeObject.clipPath) {
+                clippedImage = activeObject;
+                
+                // Find the panel this image is clipped to
+                const allObjects = canvas.getObjects();
+                const imageBounds = clippedImage.getBoundingRect();
+                
+                for (let obj of allObjects) {
+                    if (obj.type === 'rect' || obj.type === 'polygon') {
+                        const panelBounds = obj.getBoundingRect();
+                        
+                        // Simple proximity check
+                        if (Math.abs(panelBounds.left - imageBounds.left) < 5 && 
+                            Math.abs(panelBounds.top - imageBounds.top) < 5) {
+                            panel = obj;
+                            break;
+                        }
+                    }
+                }
+            }
+
+            if (!panel || !clippedImage) {
+                updateStatus('Could not find matching panel and image. Make sure they overlap.');
+                return;
+            }
+
+            // Remove both from canvas
+            canvas.remove(panel);
+            canvas.remove(clippedImage);
+
+            // Create a group
+            const group = new fabric.Group([clippedImage, panel], {
+                subTargetCheck: true,
+                interactive: true
+            });
+
+            // Mark it as a panel group for future reference
+            group.isPanelGroup = true;
+
+            canvas.add(group);
+            canvas.setActiveObject(group);
+            canvas.renderAll();
+            updateLayersList();
+            
+            updateStatus('Panel and image grouped! Now they move together. Use "Ungroup" to separate.');
+        }
+
+        // Ungroup objects
+        function ungroupObjects() {
+            const activeObject = canvas.getActiveObject();
+            
+            if (!activeObject) {
+                updateStatus('Please select a grouped object first');
+                return;
+            }
+
+            if (activeObject.type !== 'group') {
+                updateStatus('Selected object is not a group');
+                return;
+            }
+
+            // Get the objects in the group
+            const items = activeObject.getObjects();
+            
+            // Ungroup
+            activeObject.toActiveSelection();
+            canvas.discardActiveObject();
+            canvas.renderAll();
+            updateLayersList();
+            
+            updateStatus('Objects ungrouped! They can now be moved independently.');
+        }
+
+        // Auto-number all panels based on reading order (left-to-right, top-to-bottom)
+        function autoNumberPanels() {
+            const allObjects = canvas.getObjects();
+            const panels = [];
+            
+            // Collect all panels and panel groups
+            for (let obj of allObjects) {
+                if (obj.type === 'rect' || obj.type === 'polygon' || obj.isPanelGroup) {
+                    panels.push(obj);
+                }
+            }
+            
+            if (panels.length === 0) {
+                updateStatus('No panels found to number');
+                return;
+            }
+            
+            // Sort panels by position (top-to-bottom, left-to-right)
+            panels.sort((a, b) => {
+                const boundsA = a.getBoundingRect();
+                const boundsB = b.getBoundingRect();
+                
+                // If they're on roughly the same horizontal line (within 50px), sort by x position
+                if (Math.abs(boundsA.top - boundsB.top) < 50) {
+                    return boundsA.left - boundsB.left;
+                }
+                // Otherwise sort by y position (top to bottom)
+                return boundsA.top - boundsB.top;
+            });
+            
+            // Assign panel numbers
+            for (let i = 0; i < panels.length; i++) {
+                panels[i].panelNumber = i + 1;
+            }
+            
+            canvas.renderAll();
+            updateLayersList();
+            updateStatus(`Auto-numbered ${panels.length} panels in reading order!`);
+        }
+
+        // Multi-page functions
+        function saveCurrentPage() {
+            if (pages[currentPageIndex]) {
+                pages[currentPageIndex].canvasData = canvas.toJSON(['panelNumber', 'panelNotes', 'isPanelGroup', 'isCaptionBox', 'isBadge', 'badgeType']);
+                pages[currentPageIndex].backgroundColor = canvas.backgroundColor;
+            }
+        }
+
+        function loadPage(index) {
+            if (index < 0 || index >= pages.length) return;
+            
+            // Save current page first (but not when initially loading)
+            if (currentPageIndex !== index) {
+                saveCurrentPage();
+            }
+            
+            // Load new page
+            currentPageIndex = index;
+            const pageData = pages[currentPageIndex];
+            
+            if (pageData.canvasData) {
+                canvas.loadFromJSON(pageData.canvasData, () => {
+                    canvas.backgroundColor = pageData.backgroundColor || '#ffffff';
+                    canvas.renderAll();
+                    resetZoom(); // Reset zoom when changing pages
+                    updateLayersList();
+                    updatePropertiesPanel();
+                    console.log('Loaded page', index, 'with', canvas.getObjects().length, 'objects');
+                });
+            } else {
+                canvas.clear();
+                canvas.backgroundColor = pageData.backgroundColor || '#ffffff';
+                canvas.renderAll();
+                resetZoom(); // Reset zoom for empty pages too
+                updateLayersList();
+                console.log('Loaded empty page', index);
+            }
+            
+            updatePageDisplay();
+        }
+
+        function updatePageDisplay() {
+            document.getElementById('currentPageNumber').textContent = currentPageIndex + 1;
+            document.getElementById('totalPages').textContent = pages.length;
+            updatePageThumbnails();
+        }
+
+        function updatePageThumbnails() {
+            const container = document.getElementById('pageThumbnails');
+            container.innerHTML = '';
+            
+            pages.forEach((page, index) => {
+                const thumb = document.createElement('div');
+                thumb.className = 'page-thumbnail' + (index === currentPageIndex ? ' active' : '');
+                thumb.onclick = () => loadPage(index);
+                
+                thumb.innerHTML = `
+                    <div class="page-thumbnail-preview">
+                        <canvas id="thumb-${index}"></canvas>
+                    </div>
+                    <div class="page-thumbnail-info">
+                        <div class="page-thumbnail-number">Page ${index + 1}</div>
+                        <div style="color: #888; font-size: 11px;">Click to edit</div>
+                    </div>
+                `;
+                
+                container.appendChild(thumb);
+                
+                // Generate thumbnail preview
+                setTimeout(() => {
+                    const thumbCanvas = document.getElementById(`thumb-${index}`);
+                    if (thumbCanvas && page.canvasData) {
+                        const thumbFabric = new fabric.Canvas(`thumb-${index}`, {
+                            width: 60,
+                            height: 92
+                        });
+                        thumbFabric.loadFromJSON(page.canvasData, () => {
+                            thumbFabric.renderAll();
+                        });
+                    }
+                }, 100);
+            });
+        }
+
+        function previousPage() {
+            if (currentPageIndex > 0) {
+                loadPage(currentPageIndex - 1);
+                updateStatus(`Switched to Page ${currentPageIndex + 1}`);
+            }
+        }
+
+        function nextPage() {
+            if (currentPageIndex < pages.length - 1) {
+                loadPage(currentPageIndex + 1);
+                updateStatus(`Switched to Page ${currentPageIndex + 1}`);
+            }
+        }
+
+        function addNewPage() {
+            saveCurrentPage();
+            pages.push({
+                canvasData: null,
+                backgroundColor: '#ffffff'
+            });
+            loadPage(pages.length - 1);
+            updateStatus(`Created Page ${pages.length}`);
+        }
+
+        function deletePage() {
+            if (pages.length <= 1) {
+                updateStatus('Cannot delete the last page!');
+                return;
+            }
+            
+            if (confirm(`Delete Page ${currentPageIndex + 1}?`)) {
+                pages.splice(currentPageIndex, 1);
+                
+                // Load previous page or first page
+                if (currentPageIndex >= pages.length) {
+                    currentPageIndex = pages.length - 1;
+                }
+                
+                loadPage(currentPageIndex);
+                updateStatus(`Deleted page. Now on Page ${currentPageIndex + 1}`);
+            }
+        }
+
+        function exportAllPages() {
+            saveCurrentPage();
+            
+            updateStatus('Exporting all pages...');
+            
+            // Create a temporary canvas for export
+            const exportCanvas = new fabric.Canvas(document.createElement('canvas'), {
+                width: 800,
+                height: 1230,
+                backgroundColor: '#ffffff'
+            });
+            
+            pages.forEach((page, index) => {
+                if (page.canvasData) {
+                    exportCanvas.loadFromJSON(page.canvasData, () => {
+                        exportCanvas.backgroundColor = page.backgroundColor;
+                        exportCanvas.renderAll();
+                        
+                        const dataURL = exportCanvas.toDataURL({
+                            format: 'png',
+                            quality: 1,
+                            multiplier: 2
+                        });
+                        
+                        downloadImage(dataURL, `comic-page-${index + 1}.png`);
+                    });
+                }
+            });
+            
+            updateStatus(`Exported ${pages.length} pages!`);
+        }
+
+        // Panel Template System
+        function applyTemplate(templateName) {
+            if (canvas.getObjects().length > 0) {
+                if (!confirm('This will clear the current page and apply the template. Continue?')) {
+                    return;
+                }
+                canvas.clear();
+            }
+
+            const canvasWidth = 800;
+            const canvasHeight = 1230;
+            const margin = 20;
+            const gutter = 10;
+
+            let panels = [];
+
+            switch(templateName) {
+                case 'grid-6':
+                    // 6-Panel Grid (2 columns × 3 rows)
+                    const w6 = (canvasWidth - margin * 2 - gutter) / 2;
+                    const h6 = (canvasHeight - margin * 2 - gutter * 2) / 3;
+                    
+                    for (let row = 0; row < 3; row++) {
+                        for (let col = 0; col < 2; col++) {
+                            panels.push({
+                                left: margin + col * (w6 + gutter),
+                                top: margin + row * (h6 + gutter),
+                                width: w6,
+                                height: h6
+                            });
+                        }
+                    }
+                    break;
+
+                case 'grid-4':
+                    // 4-Panel Grid (2×2)
+                    const w4 = (canvasWidth - margin * 2 - gutter) / 2;
+                    const h4 = (canvasHeight - margin * 2 - gutter) / 2;
+                    
+                    for (let row = 0; row < 2; row++) {
+                        for (let col = 0; col < 2; col++) {
+                            panels.push({
+                                left: margin + col * (w4 + gutter),
+                                top: margin + row * (h4 + gutter),
+                                width: w4,
+                                height: h4
+                            });
+                        }
+                    }
+                    break;
+
+                case 'grid-3-vertical':
+                    // 3 vertical panels
+                    const h3v = (canvasHeight - margin * 2 - gutter * 2) / 3;
+                    const w3v = canvasWidth - margin * 2;
+                    
+                    for (let i = 0; i < 3; i++) {
+                        panels.push({
+                            left: margin,
+                            top: margin + i * (h3v + gutter),
+                            width: w3v,
+                            height: h3v
+                        });
+                    }
+                    break;
+
+                case 'grid-3-horizontal':
+                    // 3 horizontal panels
+                    const w3h = (canvasWidth - margin * 2 - gutter * 2) / 3;
+                    const h3h = canvasHeight - margin * 2;
+                    
+                    for (let i = 0; i < 3; i++) {
+                        panels.push({
+                            left: margin + i * (w3h + gutter),
+                            top: margin,
+                            width: w3h,
+                            height: h3h
+                        });
+                    }
+                    break;
+
+                case 'widescreen':
+                    // Widescreen layout: 1 wide top, 2 middle, 1 wide bottom
+                    const wFull = canvasWidth - margin * 2;
+                    const wHalf = (canvasWidth - margin * 2 - gutter) / 2;
+                    const hQuarter = (canvasHeight - margin * 2 - gutter * 2) / 3;
+                    
+                    panels = [
+                        { left: margin, top: margin, width: wFull, height: hQuarter },
+                        { left: margin, top: margin + hQuarter + gutter, width: wHalf, height: hQuarter },
+                        { left: margin + wHalf + gutter, top: margin + hQuarter + gutter, width: wHalf, height: hQuarter },
+                        { left: margin, top: margin + (hQuarter + gutter) * 2, width: wFull, height: hQuarter }
+                    ];
+                    break;
+
+                case 'splash-top':
+                    // Large splash panel at top, 3 smaller below
+                    const wFullST = canvasWidth - margin * 2;
+                    const wThirdST = (canvasWidth - margin * 2 - gutter * 2) / 3;
+                    const hTopST = (canvasHeight - margin * 2 - gutter) * 0.6;
+                    const hBottomST = (canvasHeight - margin * 2 - gutter) * 0.4;
+                    
+                    panels = [
+                        { left: margin, top: margin, width: wFullST, height: hTopST }
+                    ];
+                    
+                    for (let i = 0; i < 3; i++) {
+                        panels.push({
+                            left: margin + i * (wThirdST + gutter),
+                            top: margin + hTopST + gutter,
+                            width: wThirdST,
+                            height: hBottomST
+                        });
+                    }
+                    break;
+
+                case 'splash-bottom':
+                    // 3 panels top, large splash at bottom
+                    const wFullSB = canvasWidth - margin * 2;
+                    const wThirdSB = (canvasWidth - margin * 2 - gutter * 2) / 3;
+                    const hTopSB = (canvasHeight - margin * 2 - gutter) * 0.4;
+                    const hBottomSB = (canvasHeight - margin * 2 - gutter) * 0.6;
+                    
+                    for (let i = 0; i < 3; i++) {
+                        panels.push({
+                            left: margin + i * (wThirdSB + gutter),
+                            top: margin,
+                            width: wThirdSB,
+                            height: hTopSB
+                        });
+                    }
+                    
+                    panels.push({
+                        left: margin,
+                        top: margin + hTopSB + gutter,
+                        width: wFullSB,
+                        height: hBottomSB
+                    });
+                    break;
+
+                case 'manga-vertical':
+                    // Manga-style vertical emphasis
+                    const wNarrow = (canvasWidth - margin * 2 - gutter) * 0.3;
+                    const wWide = (canvasWidth - margin * 2 - gutter) * 0.7;
+                    const hTop = (canvasHeight - margin * 2 - gutter) * 0.6;
+                    const hBottom = (canvasHeight - margin * 2 - gutter) * 0.4;
+                    const wBottomThird = (canvasWidth - margin * 2 - gutter * 2) / 3;
+                    
+                    panels = [
+                        { left: margin, top: margin, width: wNarrow, height: hTop },
+                        { left: margin + wNarrow + gutter, top: margin, width: wWide, height: hTop },
+                        { left: margin, top: margin + hTop + gutter, width: wBottomThird, height: hBottom },
+                        { left: margin + wBottomThird + gutter, top: margin + hTop + gutter, width: wBottomThird, height: hBottom },
+                        { left: margin + (wBottomThird + gutter) * 2, top: margin + hTop + gutter, width: wBottomThird, height: hBottom }
+                    ];
+                    break;
+
+                case 'z-layout':
+                    // Dynamic Z-reading pattern
+                    const wZ = (canvasWidth - margin * 2 - gutter) / 2;
+                    const hZ = (canvasHeight - margin * 2 - gutter * 3) / 4;
+                    
+                    panels = [
+                        { left: margin, top: margin, width: wZ, height: hZ },
+                        { left: margin + wZ + gutter, top: margin, width: wZ, height: hZ },
+                        { left: margin, top: margin + hZ + gutter, width: wZ * 2 + gutter, height: hZ },
+                        { left: margin, top: margin + (hZ + gutter) * 2, width: wZ, height: hZ },
+                        { left: margin + wZ + gutter, top: margin + (hZ + gutter) * 2, width: wZ, height: hZ },
+                        { left: margin, top: margin + (hZ + gutter) * 3, width: wZ * 2 + gutter, height: hZ }
+                    ];
+                    break;
+            }
+
+            // Create all panels
+            panels.forEach((panelData, index) => {
+                const panel = new fabric.Rect({
+                    left: panelData.left,
+                    top: panelData.top,
+                    width: panelData.width,
+                    height: panelData.height,
+                    fill: '#ffffff',
+                    stroke: '#000000',
+                    strokeWidth: 3,
+                    panelNumber: index + 1
+                });
+                canvas.add(panel);
+            });
+
+            canvas.renderAll();
+            updateLayersList();
+            updateStatus(`Applied ${templateName} template with ${panels.length} panels!`);
+        }
+
+        // Save current panel layout as custom template
+        function saveCustomTemplate() {
+            const panels = canvas.getObjects().filter(obj => 
+                obj.type === 'rect' || obj.type === 'polygon'
+            );
+
+            if (panels.length === 0) {
+                updateStatus('No panels found to save as template');
+                return;
+            }
+
+            const templateName = prompt('Enter a name for this template:', 'My Custom Layout');
+            
+            if (!templateName) return;
+
+            const templateData = {
+                name: templateName,
+                panels: panels.map(panel => ({
+                    type: panel.type,
+                    left: panel.left,
+                    top: panel.top,
+                    width: panel.width,
+                    height: panel.height,
+                    points: panel.points, // For polygons
+                    stroke: panel.stroke,
+                    strokeWidth: panel.strokeWidth,
+                    fill: panel.fill
+                }))
+            };
+
+            customTemplates.push(templateData);
+            
+            // Save to localStorage
+            localStorage.setItem('customTemplates', JSON.stringify(customTemplates));
+            
+            updateStatus(`Template "${templateName}" saved! (${panels.length} panels)`);
+        }
+
+        // Load custom templates from localStorage
+        function loadCustomTemplates() {
+            const saved = localStorage.getItem('customTemplates');
+            if (saved) {
+                customTemplates = JSON.parse(saved);
+            }
+        }
+
+        // Debug info function
+        function showDebugInfo() {
+            const saved = localStorage.getItem('comicProject');
+            const currentObjects = canvas.getObjects();
+            
+            let info = '=== DEBUG INFO ===\n\n';
+            info += `Canvas Objects: ${currentObjects.length}\n`;
+            info += `Current Page Index: ${currentPageIndex}\n`;
+            info += `Total Pages: ${pages.length}\n`;
+            info += `Current Page Has Data: ${pages[currentPageIndex]?.canvasData !== null}\n\n`;
+            
+            if (saved) {
+                const data = JSON.parse(saved);
+                info += `LocalStorage Found: YES\n`;
+                info += `Saved Pages: ${data.pages?.length || 0}\n`;
+                info += `Saved Page 0 Has Data: ${data.pages?.[0]?.canvasData !== null}\n`;
+                info += `Saved Images: ${data.images?.length || 0}\n`;
+            } else {
+                info += `LocalStorage Found: NO\n`;
+            }
+            
+            info += `\n=== CANVAS OBJECTS ===\n`;
+            currentObjects.forEach((obj, i) => {
+                info += `${i + 1}. ${obj.type}`;
+                if (obj.panelNumber) info += ` (Panel #${obj.panelNumber})`;
+                if (obj.panelNotes) info += ` - Has Notes`;
+                info += `\n`;
+            });
+            
+            alert(info);
+            console.log(info);
+            console.log('Full localStorage data:', saved);
+            console.log('Current pages array:', pages);
+        }
+
+        // Delete selected object
+        function deleteSelected() {
+            const activeObject = canvas.getActiveObject();
+            if (activeObject) {
+                canvas.remove(activeObject);
+                updateStatus('Object deleted');
+            } else {
+                updateStatus('No object selected');
+            }
+        }
+
+        // Update panel border properties
+        function updatePanelBorder() {
+            const activeObject = canvas.getActiveObject();
+            if (activeObject && (activeObject.type === 'rect' || activeObject.type === 'polygon')) {
+                const width = parseInt(document.getElementById('borderWidth').value);
+                const color = document.getElementById('borderColor').value;
+                
+                activeObject.set({
+                    strokeWidth: width,
+                    stroke: color
+                });
+                
+                document.getElementById('borderColorValue').textContent = color;
+                canvas.renderAll();
+            }
+        }
+
+        function updatePanelFill() {
+            const activeObject = canvas.getActiveObject();
+            if (activeObject && (activeObject.type === 'rect' || activeObject.type === 'polygon')) {
+                const color = document.getElementById('fillColor').value;
+                activeObject.set({ fill: color });
+                document.getElementById('fillColorValue').textContent = color;
+                canvas.renderAll();
+            }
+        }
+
+        // Update panel number
+        function updatePanelNumber() {
+            const activeObject = canvas.getActiveObject();
+            if (activeObject && (activeObject.type === 'rect' || activeObject.type === 'polygon' || activeObject.isPanelGroup)) {
+                const panelNum = parseInt(document.getElementById('panelNumber').value);
+                activeObject.panelNumber = panelNum;
+                canvas.renderAll();
+                updateLayersList();
+                updateStatus(`Panel reading order set to #${panelNum}`);
+            }
+        }
+
+        // Update panel notes
+        function updatePanelNotes() {
+            const activeObject = canvas.getActiveObject();
+            if (activeObject && (activeObject.type === 'rect' || activeObject.type === 'polygon' || activeObject.isPanelGroup)) {
+                const notes = document.getElementById('panelNotes').value;
+                activeObject.panelNotes = notes;
+                canvas.renderAll();
+                updateStatus('Panel notes saved');
+            }
+        }
+
+        // Copy panel notes to clipboard
+        function copyPanelNotes() {
+            const notes = document.getElementById('panelNotes').value;
+            if (notes) {
+                navigator.clipboard.writeText(notes).then(() => {
+                    updateStatus('📋 Panel notes copied to clipboard!');
+                }).catch(() => {
+                    updateStatus('Could not copy to clipboard');
+                });
+            } else {
+                updateStatus('No notes to copy');
+            }
+        }
+
+        // Clear panel notes
+        function clearPanelNotes() {
+            const activeObject = canvas.getActiveObject();
+            if (activeObject && (activeObject.type === 'rect' || activeObject.type === 'polygon' || activeObject.isPanelGroup)) {
+                activeObject.panelNotes = '';
+                document.getElementById('panelNotes').value = '';
+                canvas.renderAll();
+                updateStatus('Panel notes cleared');
+            }
+        }
+
+        // Export all panel notes from all pages to a text file
+        function exportAllPanelNotes() {
+            saveCurrentPage();
+            
+            let notesText = '=== COMIC PANEL NOTES ===\n';
+            notesText += `Exported: ${new Date().toLocaleString()}\n`;
+            notesText += `Total Pages: ${pages.length}\n\n`;
+            
+            let totalPanelsWithNotes = 0;
+            
+            pages.forEach((page, pageIndex) => {
+                if (page.canvasData && page.canvasData.objects) {
+                    const panels = page.canvasData.objects.filter(obj => 
+                        (obj.type === 'rect' || obj.type === 'polygon' || obj.isPanelGroup) && obj.panelNotes
+                    );
+                    
+                    if (panels.length > 0) {
+                        notesText += `${'='.repeat(60)}\n`;
+                        notesText += `PAGE ${pageIndex + 1}\n`;
+                        notesText += `${'='.repeat(60)}\n\n`;
+                        
+                        panels.sort((a, b) => (a.panelNumber || 999) - (b.panelNumber || 999));
+                        
+                        panels.forEach(panel => {
+                            const panelNum = panel.panelNumber || '?';
+                            notesText += `--- Panel #${panelNum} ---\n`;
+                            notesText += `${panel.panelNotes}\n\n`;
+                            totalPanelsWithNotes++;
+                        });
+                    }
+                }
+            });
+            
+            if (totalPanelsWithNotes === 0) {
+                updateStatus('No panel notes found to export');
+                return;
+            }
+            
+            notesText += `${'='.repeat(60)}\n`;
+            notesText += `Total panels with notes: ${totalPanelsWithNotes}\n`;
+            
+            // Download as text file
+            const blob = new Blob([notesText], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = 'comic-panel-notes.txt';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+            
+            updateStatus(`✓ Exported notes from ${totalPanelsWithNotes} panels`);
+        }
+
+        // Update text properties
+        function updateTextProperties() {
+            const activeObject = canvas.getActiveObject();
+            if (activeObject && (activeObject.type === 'i-text' || activeObject.type === 'text' || activeObject.type === 'textbox')) {
+                const fontSize = parseInt(document.getElementById('fontSize').value);
+                const fontFamily = document.getElementById('fontFamily').value;
+                const color = document.getElementById('textColor').value;
+                const width = parseInt(document.getElementById('textWidth').value);
+                
+                const updates = {
+                    fontSize: fontSize,
+                    fontFamily: fontFamily,
+                    fill: color
+                };
+                
+                // Only update width for textbox (which supports wrapping)
+                if (activeObject.type === 'textbox') {
+                    updates.width = width;
+                }
+                
+                activeObject.set(updates);
+                
+                document.getElementById('textColorValue').textContent = color;
+                canvas.renderAll();
+            }
+        }
+
+        // Update speech bubble properties
+        function updateBubbleProperties() {
+            const activeObject = canvas.getActiveObject();
+            if (activeObject && activeObject.type === 'group') {
+                // Check if it's a speech bubble group
+                if (activeObject.bubbleType !== undefined) {
+                    const bubbleFill = document.getElementById('bubbleFill').value;
+                    const bubbleStroke = document.getElementById('bubbleStroke').value;
+                    const strokeWidth = parseInt(document.getElementById('bubbleStrokeWidth').value);
+                    
+                    // Just update colors (don't allow changing type for now - it's buggy)
+                    activeObject.getObjects().forEach(obj => {
+                        if (obj.type !== 'textbox' && obj.type !== 'i-text' && obj.type !== 'text') {
+                            obj.set({
+                                fill: bubbleFill,
+                                stroke: bubbleStroke,
+                                strokeWidth: strokeWidth
+                            });
+                        }
+                    });
+                    
+                    document.getElementById('bubbleFillValue').textContent = bubbleFill;
+                    document.getElementById('bubbleStrokeValue').textContent = bubbleStroke;
+                    canvas.renderAll();
+                }
+            }
+        }
+
+        // Update caption box properties
+        function updateCaptionProperties() {
+            const activeObject = canvas.getActiveObject();
+            if (activeObject && activeObject.type === 'group' && activeObject.isCaptionBox) {
+                const captionRect = activeObject.getObjects()[0];
+                const captionFill = document.getElementById('captionFill').value;
+                const captionStroke = document.getElementById('captionStroke').value;
+                const strokeWidth = parseInt(document.getElementById('captionStrokeWidth').value);
+                const radius = parseInt(document.getElementById('captionRadius').value);
+                
+                captionRect.set({
+                    fill: captionFill,
+                    stroke: captionStroke,
+                    strokeWidth: strokeWidth,
+                    rx: radius,
+                    ry: radius
+                });
+                
+                document.getElementById('captionFillValue').textContent = captionFill;
+                document.getElementById('captionStrokeValue').textContent = captionStroke;
+                canvas.renderAll();
+            }
+        }
+
+        // Update page background
+        function updatePageBackground() {
+            const color = document.getElementById('pageBackground').value;
+            canvas.setBackgroundColor(color, canvas.renderAll.bind(canvas));
+            document.getElementById('pageBackgroundValue').textContent = color;
+        }
+
+        // Update property panel when object is selected
+        canvas.on('selection:created', updatePropertiesPanel);
+        canvas.on('selection:updated', updatePropertiesPanel);
+        canvas.on('selection:created', updateLayersList);
+        canvas.on('selection:updated', updateLayersList);
+        canvas.on('selection:cleared', updateLayersList);
+        
+        // Update layers when objects are added or removed
+        canvas.on('object:added', updateLayersList);
+        canvas.on('object:removed', updateLayersList);
+        canvas.on('object:modified', updateLayersList);
+
+        function updatePropertiesPanel() {
+            const activeObject = canvas.getActiveObject();
+            if (activeObject) {
+                if (activeObject.type === 'group' && activeObject.isCaptionBox) {
+                    // Grouped caption box selected
+                    const bounds = activeObject.getBoundingRect();
+                    document.getElementById('panelDimensions').textContent = `${Math.round(bounds.width)} × ${Math.round(bounds.height)}`;
+                    
+                    const captionRect = activeObject.getObjects()[0];
+                    document.getElementById('captionFill').value = captionRect.fill || '#ffffff';
+                    document.getElementById('captionStroke').value = captionRect.stroke || '#000000';
+                    document.getElementById('captionStrokeWidth').value = captionRect.strokeWidth || 2;
+                    document.getElementById('captionRadius').value = captionRect.rx || 5;
+                    document.getElementById('captionFillValue').textContent = captionRect.fill || '#ffffff';
+                    document.getElementById('captionStrokeValue').textContent = captionRect.stroke || '#000000';
+                } else if (activeObject.type === 'rect' && activeObject.isCaptionBox) {
+                    // Caption box selected - show caption properties
+                    const width = Math.round(activeObject.width * (activeObject.scaleX || 1));
+                    const height = Math.round(activeObject.height * (activeObject.scaleY || 1));
+                    document.getElementById('panelDimensions').textContent = `${width} × ${height}`;
+                    
+                    document.getElementById('borderWidth').value = activeObject.strokeWidth || 2;
+                    document.getElementById('borderColor').value = activeObject.stroke || '#000000';
+                    document.getElementById('fillColor').value = activeObject.fill || '#ffffff';
+                    document.getElementById('borderColorValue').textContent = activeObject.stroke || '#000000';
+                    document.getElementById('fillColorValue').textContent = activeObject.fill || '#ffffff';
+                } else if (activeObject.type === 'rect' || activeObject.type === 'polygon') {
+                    // Calculate actual dimensions
+                    const width = Math.round(activeObject.width * (activeObject.scaleX || 1));
+                    const height = Math.round(activeObject.height * (activeObject.scaleY || 1));
+                    document.getElementById('panelDimensions').textContent = `${width} × ${height}`;
+                    
+                    document.getElementById('panelNumber').value = activeObject.panelNumber || '';
+                    document.getElementById('panelNotes').value = activeObject.panelNotes || '';
+                    document.getElementById('borderWidth').value = activeObject.strokeWidth || 3;
+                    document.getElementById('borderColor').value = activeObject.stroke || '#000000';
+                    document.getElementById('fillColor').value = activeObject.fill || '#ffffff';
+                    document.getElementById('borderColorValue').textContent = activeObject.stroke || '#000000';
+                    document.getElementById('fillColorValue').textContent = activeObject.fill || '#ffffff';
+                } else if (activeObject.type === 'i-text' || activeObject.type === 'text' || activeObject.type === 'textbox') {
+                    document.getElementById('panelDimensions').textContent = '-';
+                    document.getElementById('fontSize').value = activeObject.fontSize || 24;
+                    document.getElementById('fontFamily').value = activeObject.fontFamily || 'Arial';
+                    document.getElementById('textColor').value = activeObject.fill || '#000000';
+                    document.getElementById('textColorValue').textContent = activeObject.fill || '#000000';
+                    
+                    // Show width for textbox
+                    if (activeObject.type === 'textbox') {
+                        document.getElementById('textWidth').value = activeObject.width || 200;
+                    }
+                } else if (activeObject.type === 'group' && activeObject.bubbleType !== undefined) {
+                    document.getElementById('panelDimensions').textContent = '-';
+                    // Speech bubble selected - update bubble properties
+                    const firstObj = activeObject.getObjects()[0];
+                    document.getElementById('bubbleFill').value = firstObj.fill || '#ffffff';
+                    document.getElementById('bubbleStroke').value = firstObj.stroke || '#000000';
+                    document.getElementById('bubbleStrokeWidth').value = firstObj.strokeWidth || 2;
+                    document.getElementById('bubbleFillValue').textContent = firstObj.fill || '#ffffff';
+                    document.getElementById('bubbleStrokeValue').textContent = firstObj.stroke || '#000000';
+                    
+                    // Update bubble type and tail position dropdowns
+                    document.getElementById('bubbleType').value = activeObject.bubbleType || 'speech';
+                    document.getElementById('tailPosition').value = activeObject.tailPosition || 'bottom';
+                } else if (activeObject.type === 'group' && activeObject.isPanelGroup) {
+                    // Panel group selected - show panel number, notes, and dimensions
+                    const bounds = activeObject.getBoundingRect();
+                    document.getElementById('panelDimensions').textContent = `${Math.round(bounds.width)} × ${Math.round(bounds.height)}`;
+                    document.getElementById('panelNumber').value = activeObject.panelNumber || '';
+                    document.getElementById('panelNotes').value = activeObject.panelNotes || '';
+                } else {
+                    document.getElementById('panelDimensions').textContent = '-';
+                }
+            }
+        }
+
+        // Clear canvas
+        function clearCanvas() {
+            if (confirm('Clear the current page? This will erase all content on this page.')) {
+                canvas.clear();
+                canvas.setBackgroundColor('#ffffff', canvas.renderAll.bind(canvas));
+                resetZoom(); // Reset zoom to 100% when clearing page
+                updateStatus('Page cleared');
+                updateLayersList();
+                saveCurrentPage();
+            }
+        }
+
+        // Save project to localStorage
+        function saveProject() {
+            // Make absolutely sure current page is saved
+            saveCurrentPage();
+            
+            const json = JSON.stringify({
+                pages: pages,
+                images: uploadedImages,
+                currentPageIndex: currentPageIndex
+            });
+            localStorage.setItem('comicProject', json);
+            updateStatus('Project saved to browser!');
+            
+            // Debug log
+            console.log('Saved project:', {
+                totalPages: pages.length,
+                currentPage: currentPageIndex,
+                page0HasData: pages[0]?.canvasData !== null
+            });
+        }
+
+        // Load project from localStorage
+        function loadProject() {
+            const saved = localStorage.getItem('comicProject');
+            if (saved) {
+                const data = JSON.parse(saved);
+                
+                // Debug log
+                console.log('Loading project:', {
+                    totalPages: data.pages?.length,
+                    currentPage: data.currentPageIndex,
+                    page0HasData: data.pages?.[0]?.canvasData !== null
+                });
+                
+                pages = data.pages || [{canvasData: null, backgroundColor: '#ffffff'}];
+                currentPageIndex = data.currentPageIndex || 0;
+                uploadedImages = data.images || [];
+                
+                // Restore image gallery
+                const gallery = document.getElementById('imageGallery');
+                gallery.innerHTML = '';
+                uploadedImages.forEach(img => addImageToGallery(img));
+                
+                // Clear canvas first
+                canvas.clear();
+                
+                // Load current page WITHOUT saving first
+                const pageData = pages[currentPageIndex];
+                if (pageData.canvasData) {
+                    canvas.loadFromJSON(pageData.canvasData, () => {
+                        canvas.backgroundColor = pageData.backgroundColor || '#ffffff';
+                        canvas.renderAll();
+                        updateLayersList();
+                        updatePropertiesPanel();
+                        console.log('Loaded', canvas.getObjects().length, 'objects from saved project');
+                    });
+                } else {
+                    canvas.backgroundColor = pageData.backgroundColor || '#ffffff';
+                    canvas.renderAll();
+                    updateLayersList();
+                }
+                
+                updatePageDisplay();
+                updateStatus('Project loaded from browser!');
+            } else {
+                updateStatus('No saved project found');
+            }
+        }
+
+        // Export project as ZIP file
+        async function saveProjectZIP() {
+            saveCurrentPage();
+            updateStatus('Creating project ZIP...');
+            
+            const zip = new JSZip();
+            
+            // Use timestamp for default filename
+            const timestamp = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
+            const defaultName = `POW_Studio-v1.079-${timestamp}`;
+            
+            // Create project data
+            const projectData = {
+                name: defaultName,
+                version: '2.0',
+                created: new Date().toISOString(),
+                pages: pages,
+                images: uploadedImages,
+                currentPageIndex: currentPageIndex
+            };
+            
+            // Add project.json
+            zip.file('project.json', JSON.stringify(projectData, null, 2));
+            
+            // Create pages folder with PNG exports
+            const pagesFolder = zip.folder('pages');
+            for (let i = 0; i < pages.length; i++) {
+                if (pages[i].canvasData) {
+                    const tempCanvas = new fabric.Canvas(document.createElement('canvas'), {
+                        width: 800,
+                        height: 1230
+                    });
+                    
+                    await new Promise((resolve) => {
+                        tempCanvas.loadFromJSON(pages[i].canvasData, () => {
+                            tempCanvas.backgroundColor = pages[i].backgroundColor;
+                            tempCanvas.renderAll();
+                            
+                            const imgData = tempCanvas.toDataURL({
+                                format: 'png',
+                                quality: 1,
+                                multiplier: 2
+                            });
+                            
+                            // Remove data:image/png;base64, prefix
+                            const base64Data = imgData.split(',')[1];
+                            pagesFolder.file(`page-${i + 1}.png`, base64Data, {base64: true});
+                            resolve();
+                        });
+                    });
+                }
+            }
+            
+            // Generate ZIP and download - browser will show OS save dialog
+            zip.generateAsync({type: 'blob'}).then((blob) => {
+                const url = URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = `${defaultName}.zip`;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                URL.revokeObjectURL(url);
+                
+                updateStatus(`✓ Project ZIP exported`);
+            });
+        }
+
+        // Load project from ZIP file
+        function loadProjectZIP() {
+            document.getElementById('zipInput').click();
+        }
+
+        // Handle ZIP file selection
+        document.getElementById('zipInput').addEventListener('change', async (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+            
+            updateStatus('Loading project ZIP...');
+            
+            try {
+                const zip = await JSZip.loadAsync(file);
+                
+                // Read project.json
+                const projectJSON = await zip.file('project.json').async('string');
+                const projectData = JSON.parse(projectJSON);
+                
+                // Restore project state
+                pages = projectData.pages || [{canvasData: null, backgroundColor: '#ffffff'}];
+                currentPageIndex = projectData.currentPageIndex || 0;
+                uploadedImages = projectData.images || [];
+                
+                // Restore image gallery
+                const gallery = document.getElementById('imageGallery');
+                gallery.innerHTML = '';
+                uploadedImages.forEach(img => addImageToGallery(img));
+                
+                // Load current page
+                loadPage(currentPageIndex);
+                
+                updateStatus(`✓ Project loaded: ${projectData.name || 'Unnamed'}`);
+            } catch (error) {
+                console.error('Error loading ZIP:', error);
+                updateStatus('Error loading project ZIP');
+            }
+            
+            // Reset file input
+            e.target.value = '';
+        });
+
+        // Export to PNG
+        function exportToPNG() {
+            const dataURL = canvas.toDataURL({
+                format: 'png',
+                quality: 1,
+                multiplier: 2  // 2x resolution for better quality
+            });
+            downloadImage(dataURL, `comic-page-${currentPageIndex + 1}.png`);
+            updateStatus('Exported as PNG');
+        }
+
+        // Export current page to PDF
+        function exportCurrentPageToPDF() {
+            const { jsPDF } = window.jspdf;
+            
+            // Standard comic book size: 6.625" x 10.25" (169mm x 260mm)
+            const pdf = new jsPDF({
+                orientation: 'portrait',
+                unit: 'mm',
+                format: [169, 260]
+            });
+            
+            const imgData = canvas.toDataURL({
+                format: 'png',
+                quality: 1,
+                multiplier: 3  // High resolution for print
+            });
+            
+            // Add image to PDF (fill the entire page)
+            pdf.addImage(imgData, 'PNG', 0, 0, 169, 260);
+            
+            pdf.save(`comic-page-${currentPageIndex + 1}.pdf`);
+            updateStatus('Exported current page as PDF');
+        }
+
+        // Export all pages to a single PDF (complete comic book)
+        function exportAllPagesToPDF() {
+            saveCurrentPage();
+            
+            const { jsPDF } = window.jspdf;
+            
+            // Standard comic book size: 6.625" x 10.25" (169mm x 260mm)
+            const pdf = new jsPDF({
+                orientation: 'portrait',
+                unit: 'mm',
+                format: [169, 260]
+            });
+            
+            updateStatus('Generating PDF comic book...');
+            
+            // Create a temporary canvas for rendering each page
+            const tempCanvas = new fabric.Canvas(document.createElement('canvas'), {
+                width: 800,
+                height: 1230,
+                backgroundColor: '#ffffff'
+            });
+            
+            let pagesProcessed = 0;
+            
+            function processPage(index) {
+                if (index >= pages.length) {
+                    // All pages processed, save the PDF
+                    pdf.save('comic-book.pdf');
+                    updateStatus(`Exported ${pages.length}-page comic book as PDF!`);
+                    return;
+                }
+                
+                const page = pages[index];
+                
+                if (page.canvasData) {
+                    tempCanvas.loadFromJSON(page.canvasData, () => {
+                        tempCanvas.backgroundColor = page.backgroundColor || '#ffffff';
+                        tempCanvas.renderAll();
+                        
+                        const imgData = tempCanvas.toDataURL({
+                            format: 'png',
+                            quality: 1,
+                            multiplier: 3
+                        });
+                        
+                        // Add new page if not the first page
+                        if (index > 0) {
+                            pdf.addPage();
+                        }
+                        
+                        // Add image to PDF
+                        pdf.addImage(imgData, 'PNG', 0, 0, 169, 260);
+                        
+                        pagesProcessed++;
+                        updateStatus(`Processing page ${pagesProcessed} of ${pages.length}...`);
+                        
+                        // Process next page
+                        setTimeout(() => processPage(index + 1), 100);
+                    });
+                } else {
+                    // Empty page, add blank page
+                    if (index > 0) {
+                        pdf.addPage();
+                    }
+                    pagesProcessed++;
+                    setTimeout(() => processPage(index + 1), 100);
+                }
+            }
+            
+            // Start processing from first page
+            processPage(0);
+        }
+
+        // Export to JPG
+        function exportToJPG() {
+            const dataURL = canvas.toDataURL({
+                format: 'jpeg',
+                quality: 0.95,
+                multiplier: 2
+            });
+            downloadImage(dataURL, 'comic-page.jpg');
+            updateStatus('Exported as JPG');
+        }
+
+        function downloadImage(dataURL, filename) {
+            try {
+                const link = document.createElement('a');
+                link.download = filename;
+                link.href = dataURL;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                
+                // Give user feedback
+                setTimeout(() => {
+                    updateStatus(`✓ Downloaded: ${filename}`);
+                }, 100);
+            } catch (error) {
+                console.error('Download error:', error);
+                updateStatus(`Error downloading ${filename}`);
+            }
+        }
+
+        // Update status bar
+        function updateStatus(message) {
+            document.getElementById('statusText').textContent = message;
+        }
+
+        // Update layers panel
+        function updateLayersList() {
+            const layersList = document.getElementById('layersList');
+            layersList.innerHTML = '';
+            
+            const objects = canvas.getObjects();
+            
+            if (objects.length === 0) {
+                layersList.innerHTML = '<div style="color: #666; font-size: 11px; padding: 10px; text-align: center;">No objects yet</div>';
+                return;
+            }
+            
+            // Display in reverse order (top to bottom = front to back)
+            for (let i = objects.length - 1; i >= 0; i--) {
+                const obj = objects[i];
+                const layerItem = document.createElement('div');
+                layerItem.className = 'layer-item';
+                
+                // Determine object type and name
+                let objectName = '';
+                let objectIcon = '';
+                
+                if (obj.type === 'group' && obj.isCaptionBox) {
+                    objectIcon = '📦';
+                    objectName = 'Caption Box';
+                } else if (obj.type === 'image' && obj.isBadge) {
+                    objectIcon = '💥';
+                    const badgeName = obj.badgeType ? obj.badgeType.toUpperCase() : 'Custom';
+                    objectName = `Badge: ${badgeName}`;
+                } else if (obj.type === 'rect') {
+                    objectIcon = '🟦';
+                    objectName = 'Panel (Rectangle)';
+                    if (obj.panelNumber) {
+                        objectName = `Panel #${obj.panelNumber}`;
+                    }
+                } else if (obj.type === 'polygon') {
+                    objectIcon = '🔷';
+                    objectName = 'Panel (Polygon)';
+                    if (obj.panelNumber) {
+                        objectName = `Panel #${obj.panelNumber}`;
+                    }
+                } else if (obj.type === 'image') {
+                    objectIcon = '🖼️';
+                    objectName = 'Image';
+                } else if (obj.type === 'i-text' || obj.type === 'text' || obj.type === 'textbox') {
+                    objectIcon = '📝';
+                    const preview = obj.text.substring(0, 15);
+                    objectName = `Text: "${preview}${obj.text.length > 15 ? '...' : ''}"`;
+                } else if (obj.type === 'group') {
+                    if (obj.bubbleType) {
+                        objectIcon = '💬';
+                        const bubbleTypes = {
+                            'speech': 'Speech',
+                            'thought': 'Thought',
+                            'shout': 'Shout',
+                            'whisper': 'Whisper'
+                        };
+                        objectName = `${bubbleTypes[obj.bubbleType] || 'Speech'} Bubble`;
+                    } else if (obj.isPanelGroup) {
+                        objectIcon = '🔗';
+                        objectName = 'Grouped Panel+Image';
+                        if (obj.panelNumber) {
+                            objectName = `Grouped Panel #${obj.panelNumber}`;
+                        }
+                    } else {
+                        objectIcon = '📁';
+                        objectName = 'Group';
+                    }
+                } else if (obj.type === 'circle') {
+                    objectIcon = '⚪';
+                    objectName = 'Circle';
+                } else if (obj.type === 'line') {
+                    objectIcon = '—';
+                    objectName = 'Line';
+                } else {
+                    objectIcon = '●';
+                    objectName = obj.type;
+                }
+                
+                // Check if this object is selected
+                const activeObject = canvas.getActiveObject();
+                if (activeObject === obj) {
+                    layerItem.classList.add('selected');
+                }
+                
+                // Check if object is locked
+                const isLocked = obj.selectable === false && obj.evented === false;
+                const lockIcon = isLocked ? '🔒' : '🔓';
+                
+                if (isLocked) {
+                    layerItem.classList.add('locked');
+                }
+                
+                layerItem.innerHTML = `
+                    <span class="layer-item-name">${objectIcon} ${objectName}</span>
+                    <div class="layer-item-controls">
+                        <button class="layer-item-btn" onclick="toggleLockLayer(${i}); event.stopPropagation();" title="${isLocked ? 'Unlock' : 'Lock'}">${lockIcon}</button>
+                        <button class="layer-item-btn" onclick="selectLayerObject(${i}); event.stopPropagation();" ${isLocked ? 'disabled' : ''}>Select</button>
+                        <button class="layer-item-btn" onclick="moveLayerUp(${i}); event.stopPropagation();" ${isLocked ? 'disabled' : ''}>▲</button>
+                        <button class="layer-item-btn" onclick="moveLayerDown(${i}); event.stopPropagation();" ${isLocked ? 'disabled' : ''}>▼</button>
+                        <button class="layer-item-btn" onclick="deleteLayerObject(${i}); event.stopPropagation();" ${isLocked ? 'disabled' : ''}>✕</button>
+                    </div>
+                `;
+                
+                // Click to select
+                layerItem.addEventListener('click', () => {
+                    selectLayerObject(i);
+                });
+                
+                layersList.appendChild(layerItem);
+            }
+        }
+
+        // Select object from layers panel
+        function selectLayerObject(index) {
+            const objects = canvas.getObjects();
+            if (objects[index]) {
+                // Check if locked
+                if (objects[index].selectable === false) {
+                    updateStatus('Object is locked! Click the lock icon to unlock it first.');
+                    return;
+                }
+                canvas.setActiveObject(objects[index]);
+                canvas.renderAll();
+                updateLayersList();
+                updatePropertiesPanel();
+            }
+        }
+
+        // Move layer up (toward front)
+        function moveLayerUp(index) {
+            const objects = canvas.getObjects();
+            if (objects[index]) {
+                // Check if locked
+                if (objects[index].selectable === false && objects[index].evented === false) {
+                    updateStatus('Object is locked! Unlock it first to change layer order.');
+                    return;
+                }
+                if (index < objects.length - 1) {
+                    canvas.bringForward(objects[index]);
+                    canvas.renderAll();
+                    updateLayersList();
+                }
+            }
+        }
+
+        // Move layer down (toward back)
+        function moveLayerDown(index) {
+            const objects = canvas.getObjects();
+            if (objects[index]) {
+                // Check if locked
+                if (objects[index].selectable === false && objects[index].evented === false) {
+                    updateStatus('Object is locked! Unlock it first to change layer order.');
+                    return;
+                }
+                if (index > 0) {
+                    canvas.sendBackwards(objects[index]);
+                    canvas.renderAll();
+                    updateLayersList();
+                }
+            }
+        }
+
+        // Delete object from layers panel
+        function deleteLayerObject(index) {
+            const objects = canvas.getObjects();
+            if (objects[index]) {
+                // Check if locked
+                if (objects[index].selectable === false && objects[index].evented === false) {
+                    updateStatus('Object is locked! Unlock it first to delete.');
+                    return;
+                }
+                canvas.remove(objects[index]);
+                canvas.renderAll();
+                updateLayersList();
+            }
+        }
+
+        // Toggle lock/unlock for a layer
+        function toggleLockLayer(index) {
+            const objects = canvas.getObjects();
+            if (objects[index]) {
+                const obj = objects[index];
+                const isCurrentlyLocked = obj.selectable === false && obj.evented === false;
+                
+                if (isCurrentlyLocked) {
+                    // Unlock
+                    obj.set({
+                        selectable: true,
+                        evented: true,
+                        lockMovementX: false,
+                        lockMovementY: false,
+                        lockRotation: false,
+                        lockScalingX: false,
+                        lockScalingY: false,
+                        hasControls: true,
+                        hasBorders: true
+                    });
+                    updateStatus('Object unlocked');
+                } else {
+                    // Lock
+                    obj.set({
+                        selectable: false,
+                        evented: false,
+                        lockMovementX: true,
+                        lockMovementY: true,
+                        lockRotation: true,
+                        lockScalingX: true,
+                        lockScalingY: true,
+                        hasControls: false,
+                        hasBorders: false
+                    });
+                    
+                    // Deselect if currently selected
+                    if (canvas.getActiveObject() === obj) {
+                        canvas.discardActiveObject();
+                    }
+                    
+                    updateStatus('Object locked - cannot be moved or edited');
+                }
+                
+                canvas.renderAll();
+                updateLayersList();
+            }
+        }
+
+        // Toggle collapsible sidebar sections
+        function toggleSection(headerElement) {
+            headerElement.classList.toggle('collapsed');
+            const content = headerElement.nextElementSibling;
+            content.classList.toggle('collapsed');
+        }
+
+        // Toggle collapsible property sections
+        function togglePropertySection(headerElement) {
+            headerElement.classList.toggle('collapsed');
+            const content = headerElement.nextElementSibling;
+            content.classList.toggle('collapsed');
+        }
+
+        // Dropdown menu functions
+        function toggleDropdownMenu() {
+            const menu = document.getElementById('dropdownMenu');
+            menu.classList.toggle('active');
+        }
+
+        function closeDropdown() {
+            const menu = document.getElementById('dropdownMenu');
+            menu.classList.remove('active');
+        }
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', (e) => {
+            const menu = document.getElementById('dropdownMenu');
+            const toggle = document.getElementById('dropdownToggle');
+            
+            if (menu && toggle && !menu.contains(e.target) && !toggle.contains(e.target)) {
+                menu.classList.remove('active');
+            }
+        });
+
+        // Zoom functions
+        function setZoom(newZoom, point) {
+            const oldZoom = zoomLevel;
+            zoomLevel = Math.max(MIN_ZOOM, Math.min(MAX_ZOOM, newZoom));
+            
+            if (point) {
+                // Zoom to point (mouse position)
+                const zoom = zoomLevel / oldZoom;
+                canvas.zoomToPoint(point, zoomLevel);
+            } else {
+                // Zoom to center or selected object
+                const activeObject = canvas.getActiveObject();
+                if (activeObject) {
+                    // Zoom to selected object center
+                    const center = activeObject.getCenterPoint();
+                    canvas.zoomToPoint(center, zoomLevel);
+                } else {
+                    // Zoom to canvas center
+                    const center = new fabric.Point(canvas.width / 2, canvas.height / 2);
+                    canvas.zoomToPoint(center, zoomLevel);
+                }
+            }
+            
+            canvas.renderAll();
+            updateZoomDisplay();
+        }
+
+        function zoomIn() {
+            setZoom(zoomLevel + ZOOM_STEP);
+        }
+
+        function zoomOut() {
+            setZoom(zoomLevel - ZOOM_STEP);
+        }
+
+        function resetZoom() {
+            const oldZoom = zoomLevel;
+            zoomLevel = 1;
+            
+            // Reset zoom and recenter canvas
+            const activeObject = canvas.getActiveObject();
+            if (activeObject) {
+                // Center on selected object
+                const center = activeObject.getCenterPoint();
+                canvas.zoomToPoint(center, 1);
+            } else {
+                // Reset to canvas center
+                canvas.setViewportTransform([1, 0, 0, 1, 0, 0]);
+                canvas.setZoom(1);
+            }
+            
+            canvas.renderAll();
+            updateZoomDisplay();
+        }
+
+        function updateZoomDisplay() {
+            const percentage = Math.round(zoomLevel * 100);
+            document.getElementById('zoomDisplay').textContent = percentage + '%';
+        }
+
+        // Mouse wheel zoom - zoom toward mouse cursor
+        const canvasWrapper = document.querySelector('.canvas-wrapper');
+        canvasWrapper.addEventListener('wheel', (e) => {
+            if (e.ctrlKey || e.metaKey) {
+                e.preventDefault();
+                
+                // Get mouse position relative to canvas
+                const pointer = canvas.getPointer(e);
+                const point = new fabric.Point(pointer.x, pointer.y);
+                
+                const delta = e.deltaY > 0 ? -ZOOM_STEP : ZOOM_STEP;
+                setZoom(zoomLevel + delta, point);
+            }
+        }, { passive: false });
+
+        // Pan/drag with middle mouse button or Space + drag
+        let spacePressed = false;
+
+        document.addEventListener('keydown', (e) => {
+            if (e.code === 'Space' && !e.repeat) {
+                spacePressed = true;
+                canvas.defaultCursor = 'grab';
+            }
+        });
+
+        document.addEventListener('keyup', (e) => {
+            if (e.code === 'Space') {
+                spacePressed = false;
+                canvas.defaultCursor = 'default';
+                if (isPanning) {
+                    isPanning = false;
+                    canvas.setCursor('default');
+                }
+            }
+        });
+
+        canvas.on('mouse:down', (opt) => {
+            const evt = opt.e;
+            // Middle mouse button (button 1) or Space + left click
+            if (evt.button === 1 || (spacePressed && evt.button === 0)) {
+                isPanning = true;
+                lastPosX = evt.clientX;
+                lastPosY = evt.clientY;
+                canvas.setCursor('grabbing');
+                canvas.selection = false; // Disable selection while panning
+            }
+        });
+
+        canvas.on('mouse:move', (opt) => {
+            if (isPanning) {
+                const evt = opt.e;
+                const vpt = canvas.viewportTransform;
+                vpt[4] += evt.clientX - lastPosX;
+                vpt[5] += evt.clientY - lastPosY;
+                canvas.requestRenderAll();
+                lastPosX = evt.clientX;
+                lastPosY = evt.clientY;
+            }
+        });
+
+        canvas.on('mouse:up', () => {
+            if (isPanning) {
+                isPanning = false;
+                canvas.setCursor(spacePressed ? 'grab' : 'default');
+                canvas.selection = true; // Re-enable selection
+            }
+        });
+
+        // Also handle middle mouse button release outside canvas
+        document.addEventListener('mouseup', (e) => {
+            if (e.button === 1 && isPanning) {
+                isPanning = false;
+                canvas.setCursor('default');
+                canvas.selection = true;
+            }
+        });
+
+        // Undo/Redo functions
+        function saveState() {
+            if (isUndoRedoAction) return;
+            
+            const state = JSON.stringify(canvas.toJSON(['panelNumber', 'panelNotes', 'isPanelGroup', 'isCaptionBox', 'isBadge', 'badgeType']));
+            undoStack.push(state);
+            
+            // Limit undo stack size
+            if (undoStack.length > MAX_UNDO_STEPS) {
+                undoStack.shift();
+            }
+            
+            // Clear redo stack when new action is performed
+            redoStack = [];
+            updateUndoRedoButtons();
+        }
+
+        function undo() {
+            if (undoStack.length === 0) {
+                updateStatus('Nothing to undo');
+                return;
+            }
+            
+            // Save current state to redo stack
+            const currentState = JSON.stringify(canvas.toJSON(['panelNumber', 'panelNotes', 'isPanelGroup', 'isCaptionBox', 'isBadge', 'badgeType']));
+            redoStack.push(currentState);
+            
+            // Get previous state
+            const previousState = undoStack.pop();
+            
+            // Load previous state
+            isUndoRedoAction = true;
+            canvas.loadFromJSON(previousState, () => {
+                canvas.renderAll();
+                updateLayersList();
+                isUndoRedoAction = false;
+                updateUndoRedoButtons();
+                updateStatus('Undo');
+            });
+        }
+
+        function redo() {
+            if (redoStack.length === 0) {
+                updateStatus('Nothing to redo');
+                return;
+            }
+            
+            // Save current state to undo stack
+            const currentState = JSON.stringify(canvas.toJSON(['panelNumber', 'panelNotes', 'isPanelGroup', 'isCaptionBox', 'isBadge', 'badgeType']));
+            undoStack.push(currentState);
+            
+            // Get next state
+            const nextState = redoStack.pop();
+            
+            // Load next state
+            isUndoRedoAction = true;
+            canvas.loadFromJSON(nextState, () => {
+                canvas.renderAll();
+                updateLayersList();
+                isUndoRedoAction = false;
+                updateUndoRedoButtons();
+                updateStatus('Redo');
+            });
+        }
+
+        function updateUndoRedoButtons() {
+            const undoBtn = document.getElementById('undoBtn');
+            const redoBtn = document.getElementById('redoBtn');
+            
+            if (undoBtn) {
+                undoBtn.disabled = undoStack.length === 0;
+                undoBtn.style.opacity = undoStack.length === 0 ? '0.5' : '1';
+            }
+            
+            if (redoBtn) {
+                redoBtn.disabled = redoStack.length === 0;
+                redoBtn.style.opacity = redoStack.length === 0 ? '0.5' : '1';
+            }
+        }
+
+        // Grid and dimension functions
+        function toggleSnapToGrid() {
+            snapToGrid = document.getElementById('snapToGrid').checked;
+            updateStatus(snapToGrid ? 'Snap to grid enabled' : 'Snap to grid disabled');
+        }
+
+        function updateGridSize() {
+            gridSize = parseInt(document.getElementById('gridSize').value);
+            updateStatus(`Grid size: ${gridSize}px`);
+        }
+
+        function toggleShowDimensions() {
+            showDimensions = document.getElementById('showDimensions').checked;
+            if (!showDimensions && dimensionOverlay) {
+                dimensionOverlay.remove();
+                dimensionOverlay = null;
+            }
+            updateStatus(showDimensions ? 'Dimension display enabled' : 'Dimension display disabled');
+        }
+
+        function snapToGridValue(value) {
+            if (!snapToGrid) return value;
+            return Math.round(value / gridSize) * gridSize;
+        }
+
+        function showDimensionOverlay(x, y, width, height) {
+            if (!showDimensions) return;
+            
+            if (!dimensionOverlay) {
+                dimensionOverlay = document.createElement('div');
+                dimensionOverlay.className = 'dimension-overlay';
+                document.body.appendChild(dimensionOverlay);
+            }
+            
+            // Get canvas element position on screen
+            const canvasElement = document.getElementById('comic-canvas');
+            const rect = canvasElement.getBoundingClientRect();
+            
+            // Convert canvas coordinates to screen coordinates
+            const screenX = rect.left + x;
+            const screenY = rect.top + y;
+            
+            const displayWidth = Math.round(width);
+            const displayHeight = Math.round(height);
+            dimensionOverlay.textContent = `${displayWidth} × ${displayHeight}`;
+            dimensionOverlay.style.left = (screenX + 10) + 'px';
+            dimensionOverlay.style.top = (screenY - 35) + 'px';
+            dimensionOverlay.style.display = 'block';
+        }
+
+        function hideDimensionOverlay() {
+            if (dimensionOverlay) {
+                dimensionOverlay.style.display = 'none';
+            }
+        }
+
+        // Initialize
+        initializePages();
+        loadCustomTemplates();
+        setTool('select');
+        updateStatus('Comic Book Layout Studio Ready! Upload images and create panels to begin.');
+        updateLayersList();
+        updateUndoRedoButtons();
+
+        // Handle object selection - auto-ungroup bubbles/captions for editing
+        canvas.on('selection:created', handleSelectionForEditing);
+        canvas.on('selection:updated', handleSelectionForEditing);
+
+        function handleSelectionForEditing(e) {
+            const obj = e.selected[0];
+            if (obj && obj.type === 'group' && (obj.bubbleType || obj.isCaptionBox)) {
+                // Store group info before ungrouping
+                obj._wasGrouped = true;
+                obj._groupLeft = obj.left;
+                obj._groupTop = obj.top;
+            }
+        }
+
+        // Add "Edit Text" button to properties when bubble/caption selected
+        canvas.on('selection:created', updatePropertiesPanel);
+        canvas.on('selection:updated', updatePropertiesPanel);
+
+        // Smart ungroup for editing bubbles/captions
+        function ungroupForEditing() {
+            const activeObject = canvas.getActiveObject();
+            if (activeObject && activeObject.type === 'group' && (activeObject.bubbleType || activeObject.isCaptionBox)) {
+                // Store group properties
+                const groupProps = {
+                    bubbleType: activeObject.bubbleType,
+                    tailPosition: activeObject.tailPosition,
+                    isCaptionBox: activeObject.isCaptionBox,
+                    left: activeObject.left,
+                    top: activeObject.top
+                };
+                
+                // Ungroup
+                const items = activeObject.getObjects();
+                activeObject._objects.forEach(obj => {
+                    obj._groupProps = groupProps; // Store on each object
+                });
+                
+                canvas.remove(activeObject);
+                
+                items.forEach(obj => {
+                    canvas.add(obj);
+                });
+                
+                // Select the text object
+                const textObj = items.find(obj => obj.type === 'textbox' || obj.type === 'i-text' || obj.type === 'text');
+                if (textObj) {
+                    canvas.setActiveObject(textObj);
+                    textObj.enterEditing();
+                    textObj.selectAll();
+                }
+                
+                canvas.renderAll();
+                updateStatus('Editing text - will auto-regroup when done!');
+            }
+        }
+
+        // Auto-regroup when deselecting text that was ungrouped
+        canvas.on('selection:cleared', autoRegroupIfNeeded);
+
+        function autoRegroupIfNeeded(e) {
+            // Find ungrouped text objects that need regrouping
+            const objects = canvas.getObjects();
+            const textObjects = objects.filter(obj => 
+                obj._groupProps && (obj.type === 'textbox' || obj.type === 'i-text' || obj.type === 'text')
+            );
+            
+            textObjects.forEach(textObj => {
+                const groupProps = textObj._groupProps;
+                
+                // Find the bubble/caption box that belongs with this text
+                const boxObj = objects.find(obj => 
+                    obj._groupProps && 
+                    obj._groupProps.left === groupProps.left &&
+                    obj._groupProps.top === groupProps.top &&
+                    obj !== textObj
+                );
+                
+                if (boxObj) {
+                    // Regroup them
+                    const group = new fabric.Group([boxObj, textObj], {
+                        left: groupProps.left,
+                        top: groupProps.top,
+                        bubbleType: groupProps.bubbleType,
+                        tailPosition: groupProps.tailPosition,
+                        isCaptionBox: groupProps.isCaptionBox,
+                        subTargetCheck: true,
+                        interactive: true
+                    });
+                    
+                    canvas.remove(boxObj);
+                    canvas.remove(textObj);
+                    canvas.add(group);
+                    canvas.renderAll();
+                    updateStatus('Text auto-regrouped with bubble/caption!');
+                }
+            });
+        }
+
+        // Auto-save on canvas changes (debounced)
+        let autoSaveTimer = null;
+        canvas.on('object:modified', () => {
+            saveState(); // Save to undo stack
+            clearTimeout(autoSaveTimer);
+            autoSaveTimer = setTimeout(() => {
+                saveCurrentPage();
+            }, 1000); // Save 1 second after last change
+            hideDimensionOverlay();
+            updatePropertiesPanel(); // Update dimensions display
+        });
+
+        canvas.on('object:added', () => {
+            if (!isUndoRedoAction) {
+                saveState(); // Save to undo stack
+            }
+            clearTimeout(autoSaveTimer);
+            autoSaveTimer = setTimeout(() => {
+                saveCurrentPage();
+            }, 1000);
+            updatePropertiesPanel();
+        });
+
+        canvas.on('object:removed', () => {
+            if (!isUndoRedoAction) {
+                saveState(); // Save to undo stack
+            }
+            clearTimeout(autoSaveTimer);
+            autoSaveTimer = setTimeout(() => {
+                saveCurrentPage();
+            }, 1000);
+        });
+
+        // Update dimensions display on selection
+        canvas.on('selection:created', () => {
+            updatePropertiesPanel();
+        });
+
+        canvas.on('selection:updated', () => {
+            updatePropertiesPanel();
+        });
+
+        canvas.on('selection:cleared', () => {
+            document.getElementById('panelDimensions').textContent = '-';
+        });
+
+        // Snap to grid on object moving
+        canvas.on('object:moving', (e) => {
+            const obj = e.target;
+            if (snapToGrid) {
+                obj.set({
+                    left: snapToGridValue(obj.left),
+                    top: snapToGridValue(obj.top)
+                });
+            }
+            
+            // Show dimensions ONLY for panels (rect/polygon)
+            if (showDimensions && (obj.type === 'rect' || obj.type === 'polygon') && !obj.isCaptionBox) {
+                const width = obj.width * (obj.scaleX || 1);
+                const height = obj.height * (obj.scaleY || 1);
+                const bounds = obj.getBoundingRect();
+                showDimensionOverlay(e.pointer.x, e.pointer.y, width, height);
+            }
+        });
+
+        // Snap to grid and show dimensions on scaling
+        canvas.on('object:scaling', (e) => {
+            const obj = e.target;
+            
+            if (snapToGrid) {
+                const width = obj.width * obj.scaleX;
+                const height = obj.height * obj.scaleY;
+                
+                const snappedWidth = snapToGridValue(width);
+                const snappedHeight = snapToGridValue(height);
+                
+                obj.set({
+                    scaleX: snappedWidth / obj.width,
+                    scaleY: snappedHeight / obj.height
+                });
+            }
+            
+            // Show dimensions ONLY for panels (rect/polygon)
+            if (showDimensions && (obj.type === 'rect' || obj.type === 'polygon') && !obj.isCaptionBox) {
+                const width = obj.width * obj.scaleX;
+                const height = obj.height * obj.scaleY;
+                showDimensionOverlay(e.pointer.x, e.pointer.y, width, height);
+            }
+        });
+
+        // Save before closing browser
+        window.addEventListener('beforeunload', (e) => {
+            saveCurrentPage();
+            // Note: Browser auto-save happens here
+        });
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', (e) => {
+            // Zoom in - Dynamic key binding
+            if (checkKeyBinding(e, 'zoomIn')) {
+                e.preventDefault();
+                zoomIn();
+                return;
+            }
+            
+            // Zoom out - Dynamic key binding
+            if (checkKeyBinding(e, 'zoomOut')) {
+                e.preventDefault();
+                zoomOut();
+                return;
+            }
+            
+            // Reset zoom - Dynamic key binding
+            if (checkKeyBinding(e, 'zoomReset')) {
+                e.preventDefault();
+                resetZoom();
+                return;
+            }
+            
+            // Undo - Dynamic key binding
+            if (checkKeyBinding(e, 'undo')) {
+                e.preventDefault();
+                undo();
+                return;
+            }
+            
+            // Redo - Dynamic key binding
+            if (checkKeyBinding(e, 'redo')) {
+                e.preventDefault();
+                redo();
+                return;
+            }
+            
+            // Finish polygon with Enter key
+            if (e.key === 'Enter' && currentTool === 'polygon' && polygonPoints.length >= 3) {
+                finishPolygon();
+                e.preventDefault();
+                return;
+            }
+            
+            // Escape key cancels polygon drawing
+            if (e.key === 'Escape' && currentTool === 'polygon') {
+                clearPolygonDrawing();
+                setTool('select');
+                updateStatus('Polygon drawing cancelled');
+                e.preventDefault();
+                return;
+            }
+            
+            // Layer control shortcuts (Ctrl/Cmd + [ and ])
+            if ((e.ctrlKey || e.metaKey) && !e.shiftKey) {
+                if (e.key === ']') {
+                    bringForward();
+                    e.preventDefault();
+                    return;
+                } else if (e.key === '[') {
+                    sendBackward();
+                    e.preventDefault();
+                    return;
+                }
+            }
+            
+            // Layer control shortcuts (Ctrl/Cmd + Shift + [ and ])
+            if ((e.ctrlKey || e.metaKey) && e.shiftKey) {
+                if (e.key === ']' || e.key === '}') {
+                    bringToFront();
+                    e.preventDefault();
+                    return;
+                } else if (e.key === '[' || e.key === '{') {
+                    sendToBack();
+                    e.preventDefault();
+                    return;
+                }
+            }
+            
+            if (e.key === 'Delete' || e.key === 'Backspace') {
+                if (document.activeElement.tagName !== 'INPUT' && 
+                    document.activeElement.tagName !== 'TEXTAREA') {
+                    deleteSelected();
+                    e.preventDefault();
+                }
+            }
+            if (e.ctrlKey || e.metaKey) {
+                if (e.key === 's') {
+                    e.preventDefault();
+                    saveProject();
+                } else if (e.key === 'l' || e.key === 'L') {
+                    // Lock/unlock selected object
+                    e.preventDefault();
+                    const activeObject = canvas.getActiveObject();
+                    if (activeObject) {
+                        const objects = canvas.getObjects();
+                        const index = objects.indexOf(activeObject);
+                        if (index !== -1) {
+                            toggleLockLayer(index);
+                        }
+                    } else {
+                        updateStatus('No object selected to lock/unlock');
+                    }
+                } else if (e.key === 'g' || e.key === 'G') {
+                    e.preventDefault();
+                    if (e.shiftKey) {
+                        // Ungroup
+                        ungroupObjects();
+                    } else {
+                        // Group panel and image
+                        groupPanelAndImage();
+                    }
+                } else if (e.key === 'ArrowLeft') {
+                    // Previous page
+                    e.preventDefault();
+                    previousPage();
+                } else if (e.key === 'ArrowRight') {
+                    // Next page
+                    e.preventDefault();
+                    nextPage();
+                }
+            }
+        });
+    </script>
+</body>
+</html>

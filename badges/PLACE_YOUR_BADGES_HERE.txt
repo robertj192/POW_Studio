@@ -1,0 +1,32 @@
+╔════════════════════════════════════════════════════════════╗
+║                                                            ║
+║                    BADGES FOLDER                           ║
+║                                                            ║
+╚════════════════════════════════════════════════════════════╝
+
+This folder is for storing your custom badge graphics.
+
+WHAT ARE BADGES?
+Badges are comic sound effects and action words like:
+• POW! • BAM! • ZAP! • BOOM! • CRASH!
+
+POW! Studio includes 9 built-in badges, but you can add your own!
+
+HOW TO USE CUSTOM BADGES:
+1. Save your badge graphics to this folder
+2. Open POW! Studio
+3. Go to Tools → Settings → Custom Badges
+4. Upload your badges to replace the built-in ones
+
+BADGE SPECS:
+• Recommended size: 400-600px wide × 200-300px tall
+• Format: PNG with transparent background (best!)
+• Bold, readable text
+• High contrast colors
+
+TIPS:
+• Make them POP! Bold colors and thick outlines
+• Test them at different sizes
+• Keep a backup of originals
+
+Create impact! 💥

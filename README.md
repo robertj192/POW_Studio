@@ -231,7 +231,7 @@ POW_Studio/
 ## 📚 Documentation
 
 - **README.txt** - Comprehensive user guide (included in download)
-- **Tutorial Comic** - Visual guide with Big C (coming soon!)
+- **Tutorial Comic** - Visual guide with Big C (🎨 *in progress!*)
 - **GitHub Wiki** - In-depth documentation (coming soon!)
 - **Video Tutorials** - Step-by-step guides (coming soon!)
 
@@ -260,6 +260,7 @@ Contributions are welcome! Whether it's:
 ## 🗺️ Roadmap
 
 ### v1.1 (Coming Soon)
+- [ ] **Big C Tutorial Comic** - Complete visual guide featuring our heroic robot mascot
 - [ ] Speech bubble tool (redesigned)
 - [ ] Collaborative features
 - [ ] Cloud save options

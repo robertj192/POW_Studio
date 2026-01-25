@@ -110,10 +110,29 @@ Our mascot and tutorial guide! Big C is a heroic robot who believes in one thing
 
 ### Quick Start
 
-1. **Download** `POW_Studio-v1.079.html` from the repository
-2. **Open** the file in your web browser
-3. **Accept** the legal disclaimer
-4. **Start creating!**
+**Option 1: Clone the Repository** (Recommended)
+```bash
+# Clone the repository
+git clone https://github.com/robertj192/POW_Studio.git
+
+# Navigate to the directory
+cd POW_Studio
+
+# Open the HTML file in your browser
+# (Double-click POW_Studio-v1.079.html or use your browser's File → Open)
+```
+
+**Option 2: Direct Download**
+1. Click the green **"Code"** button on GitHub
+2. Select **"Download ZIP"**
+3. Extract the ZIP file
+4. Open `POW_Studio-v1.079.html` in your browser
+
+**Then:**
+- Accept the legal disclaimer
+- Start creating comics!
+
+**Note:** Cloning creates the full directory structure including `docs/images/` for screenshots.
 
 ---
 

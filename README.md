@@ -110,22 +110,10 @@ Our mascot and tutorial guide! Big C is a heroic robot who believes in one thing
 
 ### Quick Start
 
-1. **Download** the latest release
-2. **Unzip** the package
-3. **Open** `POW_Studio-v1.079.html` in your browser
-4. **Accept** the legal disclaimer
-5. **Start creating!**
-
-### Directory Structure
-
-```
-POW_Studio/
-├── POW_Studio-v1.079.html    # The application
-├── README.txt                # User documentation
-├── images/                   # Your comic artwork
-├── badges/                   # Custom badge graphics
-└── projects/                 # Saved projects
-```
+1. **Download** `POW_Studio-v1.079.html` from the repository
+2. **Open** the file in your web browser
+3. **Accept** the legal disclaimer
+4. **Start creating!**
 
 ---
 
@@ -230,7 +218,7 @@ POW_Studio/
 
 ## 📚 Documentation
 
-- **README.txt** - Comprehensive user guide (included in download)
+- **This README** - Complete guide and feature overview
 - **Tutorial Comic** - Visual guide with Big C (🎨 *in progress!*)
 - **GitHub Wiki** - In-depth documentation (coming soon!)
 - **Video Tutorials** - Step-by-step guides (coming soon!)

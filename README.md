@@ -237,23 +237,22 @@ POW_Studio/
 
 ---
 
-## 🤝 Contributing
+## 💡 Usage & Modifications
 
-Contributions are welcome! Whether it's:
+**POW! Studio is open source under the MIT License.**
 
-- 🐛 Bug reports
-- 💡 Feature requests
-- 📝 Documentation improvements
-- 🎨 UI/UX enhancements
-- 🔧 Code contributions
+You're welcome to:
+- ✅ Download and use it
+- ✅ Fork and modify for your own use
+- ✅ Create your own version
+- ✅ Learn from the code
 
-### How to Contribute
+**This repository is maintained as a personal project.** If you have suggestions or find bugs:
+- 🐛 **Report Issues** - Use GitHub Issues for bug reports
+- 💡 **Feature Requests** - Share ideas through GitHub Discussions
+- 🌟 **Show Support** - Star the repo if you find it useful!
 
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
+For major modifications or derivative works, please create your own repository rather than submitting pull requests to this one.
 
 ---
 

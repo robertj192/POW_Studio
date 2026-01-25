@@ -6,7 +6,7 @@
 
 *Where Comics Come to Life!*
 
-![POW! Studio Interface](docs/images/interface-overview.png)
+![POW! Studio Interface](docs/images/interface-overview.png?v=2)
 
 [![Version](https://img.shields.io/badge/version-1.079-blue.svg)](https://github.com/robertj192/POW_Studio)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)

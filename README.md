@@ -2,15 +2,15 @@
 
 <div align="center">
 
-![POW! Studio Logo](docs/images/logo.png)
-
 **Professional Comic Layout Tool**
 
 *Where Comics Come to Life!*
 
-[![Version](https://img.shields.io/badge/version-1.079-blue.svg)](https://github.com/yourusername/pow-studio)
+![POW! Studio Interface](docs/images/interface-overview.png)
+
+[![Version](https://img.shields.io/badge/version-1.079-blue.svg)](https://github.com/robertj192/POW_Studio)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
-[![Made with Love](https://img.shields.io/badge/made%20with-❤️-red.svg)](https://github.com/yourusername/pow-studio)
+[![Made with Love](https://img.shields.io/badge/made%20with-❤️-red.svg)](https://github.com/robertj192/POW_Studio)
 
 [Features](#-features) • [Getting Started](#-getting-started) • [Usage](#-usage) • [About](#-about) • [Contributing](#-contributing)
 
@@ -35,8 +35,6 @@ No installation. No subscription. No bloat. Just you and your comic.
 
 Our mascot and tutorial guide! Big C is a heroic robot who believes in one thing: **YOU CAN CREATE COMICS TOO!**
 
-![Big C](docs/images/big_c.png)
-
 ---
 
 ## ✨ Features
@@ -48,8 +46,6 @@ Our mascot and tutorial guide! Big C is a heroic robot who believes in one thing
 - **Auto-Numbering** - Organize your panel flow
 - **Lock Panels** - Prevent accidental moves
 
-![Panel Creation](docs/images/panel-creation.gif)
-
 ### 💬 Text & Captions
 - **Text Wrapping** - Automatic text flow
 - **Caption Boxes** - Professional narration boxes
@@ -57,15 +53,11 @@ Our mascot and tutorial guide! Big C is a heroic robot who believes in one thing
 - **Full Formatting** - Size, color, alignment
 - **Smart Editing** - Double-click to edit, auto-regroup
 
-![Text Features](docs/images/text-features.png)
-
 ### 💥 Badges & Effects
 - **9 Built-in Badges** - POW!, BAM!, ZAP!, BOOM!, SPLAT!, KAPOW!, WHOOSH!, CRASH!, THUD!
 - **Custom Badge Upload** - Use your own action graphics
 - **Drag & Rotate** - Perfect positioning
 - **Scalable** - Resize without quality loss
-
-![Badges](docs/images/badges.png)
 
 ### 📄 Page Management
 - **Multi-Page Support** - Create entire comics
@@ -80,15 +72,11 @@ Our mascot and tutorial guide! Big C is a heroic robot who believes in one thing
 - **Page Notes** - Plot, setting, mood
 - **Ready to Pitch** - Perfect for publisher submissions
 
-![Script Export](docs/images/script-export.png)
-
 ### 🎨 Customization
 - **3 Themes** - Dark, Light, High Contrast
 - **Custom Keyboard Shortcuts** - Work your way
 - **Custom Badges** - Replace built-ins with your style
 - **Settings Persistence** - Saves automatically
-
-![Settings](docs/images/settings.png)
 
 ### 📤 Export Options
 - **PNG Export** - High-quality image output
@@ -297,24 +285,14 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ---
 
-## 📬 Contact & Support
-
-- **GitHub Issues** - Bug reports and feature requests
-- **Discussions** - Questions and community chat
-- **Email** - [your-email@example.com]
-- **Twitter** - [@YourHandle]
-
----
-
 ## 🌟 Show Your Support
 
 If POW! Studio helps you create comics, please:
 
 - ⭐ Star this repository
-- 🐛 Report bugs
+- 🐛 Report bugs through GitHub Issues
 - 💡 Suggest features
 - 📢 Share with fellow creators
-- ☕ [Buy me a coffee](https://buymeacoffee.com/yourhandle) (optional!)
 
 ---
 

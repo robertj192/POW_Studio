@@ -20,14 +20,20 @@
 
 ## 📖 About
 
-**POW! Studio** was born from a simple need: creating professional comic book layouts shouldn't require expensive software or a steep learning curve.
+**POW! Studio** was born from a lifelong passion for comics and a simple need: creating professional comic book layouts shouldn't require expensive software or a steep learning curve.
 
-As a comic creator working on my "Fire and Ice" series, I found myself frustrated with existing tools. They were either:
+I've been a huge comic fan since I was a kid - the art, the storytelling, the way panels guide your eye through the narrative. When I started working on my "Fire and Ice" series, I found myself frustrated with existing tools. They were either:
 - Too complex (full illustration suites when I just needed layout)
 - Too expensive (subscription-based tools)
 - Too limited (basic templates with no flexibility)
 
-So I built POW! Studio - a **free, open-source, browser-based** comic layout tool that focuses on what matters most: **creating professional panel layouts, organizing your story, and exporting pitch-ready scripts**.
+So I did what any developer would do: I built my own tool. But I didn't do it alone.
+
+### 🤖 Building with Big C
+
+This project was created through "vibe coding" with Claude (affectionately known as Big C) - an AI assistant from Anthropic. Together, we iterated on features, solved problems, and built something that actually works the way comic creators think. Big C became more than just a coding partner; he became the mascot and spirit of POW! Studio.
+
+The result? A **free, open-source, browser-based** comic layout tool that focuses on what matters most: **creating professional panel layouts, organizing your story, and exporting pitch-ready scripts**.
 
 No installation. No subscription. No bloat. Just you and your comic.
 

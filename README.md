@@ -247,12 +247,14 @@ You're welcome to:
 - ✅ Create your own version
 - ✅ Learn from the code
 
+**⚠️ Security Notice:** This repository does not accept pull requests or code contributions. All code modifications are made exclusively by the repository owner to ensure security and quality control. If you modify the code, you are responsible for your own version's security.
+
 **This repository is maintained as a personal project.** If you have suggestions or find bugs:
 - 🐛 **Report Issues** - Use GitHub Issues for bug reports
 - 💡 **Feature Requests** - Share ideas through GitHub Discussions
 - 🌟 **Show Support** - Star the repo if you find it useful!
 
-For major modifications or derivative works, please create your own repository rather than submitting pull requests to this one.
+For major modifications or derivative works, please create your own repository.
 
 ---
 

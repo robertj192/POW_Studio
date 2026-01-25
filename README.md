@@ -42,6 +42,8 @@ Our mascot and tutorial guide! Big C is a heroic robot who believes in one thing
 ### 🎨 Panel Creation
 - **Rectangle Panels** - Quick, precise panel creation
 - **Freeform Polygons** - Custom shapes for dynamic layouts
+- **Panel Templates** - 9 pre-built layouts (grids, vertical, horizontal, widescreen, splash, manga, Z-layout)
+- **Custom Templates** - Save your own layouts for reuse
 - **Grid Snapping** - Perfect alignment every time
 - **Auto-Numbering** - Organize your panel flow
 - **Lock Panels** - Prevent accidental moves
@@ -253,7 +255,6 @@ Contributions are welcome! Whether it's:
 
 ### v1.1 (Coming Soon)
 - [ ] Speech bubble tool (redesigned)
-- [ ] Panel templates (common layouts)
 - [ ] Collaborative features
 - [ ] Cloud save options
 
